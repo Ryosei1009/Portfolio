@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+span {
+    @apply inline-block
+}
+
+.scroll-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scroll-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+div p a {
+  @apply text-blue-600 cursor-pointer hover:underline;
+}
+
+h1 {
+  @apply text-4xl font-bold max-md:text-3xl max-sm:text-2xl;
+}
+
+h2 {
+  @apply text-3xl font-bold max-md:text-2xl max-sm:text-xl;
+}
+
+h3 {
+  @apply text-2xl font-bold max-md:text-xl max-sm:text-lg;
+}
+
+h4 {
+  @apply text-xl font-bold max-md:text-lg max-sm:text-base;
+}
+
+h5 {
+  @apply text-lg font-bold max-md:text-base max-sm:text-sm;
+}
+
+h6 {
+  @apply text-base font-bold max-md:text-sm max-sm:text-xs;
+}
