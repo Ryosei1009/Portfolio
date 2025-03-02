@@ -2,9 +2,8 @@ import { Dialog, Transition } from '@headlessui/react';
 import React, { Fragment, useEffect, useState } from 'react';
 import { newLineUtil } from '../../../../utils/TextUtil';
 import ImageModal from './ImageModal';
-import { works } from '../db/Works';
 
-const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork }) => {
+const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, works }) => {
     const [selectedImage, setSelectedImage] = useState();
     const [isOpen, setIsOpen] = useState(false)
     const handleClose = () => {
@@ -15,6 +14,7 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork }
     }
 
     useEffect(() => {
+        console.log(selectedWork)
         const handleKeyDown = (event) => {
             if (event.key === "ArrowRight") {
                 console.log(selectedWork.id)
@@ -32,7 +32,7 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork }
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
         };
-    }, [selectedWork, setSelectedWork]);
+    }, [selectedWork, setSelectedWork, works]);
 
     const getDevicesNumber = () => {
         switch (selectedImage) {
@@ -82,7 +82,7 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork }
                                         <div className="absolute inset-0 bg-white rounded-md"></div>
                                         <Dialog.Panel className="relative scroll-hidden px-10 max-lg:px-4 py-12 max-lg:py-5 overflow-y-auto max-h-[80vh] flex flex-col items-center">
                                             <div className="text-5xl max-2xl:text-4xl max-xl:text-3xl max-lg:text-2xl max-md:text-xl font-bold mb-2">
-                                                <div dangerouslySetInnerHTML={{ __html: selectedWork.each }} />
+                                                <div dangerouslySetInnerHTML={{ __html: selectedWork.each_name }} />
                                             </div>
                                             <a href={selectedWork.url} target="_blank" rel="noopener noreferrer" className={`${selectedWork.url && "text-blue-500 hover:underline"} outline-none`}>
                                                 {selectedWork.url_name}
@@ -90,11 +90,11 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork }
                                             <div className="flex max-lg:flex-col mt-8 max-lg:mt-4 items-center">
                                                 <div className="flex flex-col items-center w-11/24 max-lg:w-full mr-4 max-xl:mr-4 max-lg:mr-0">
                                                     <img onClick={() => setIsOpen(true)} className="w-45/48 cursor-pointer hover:opacity-80"
-                                                        src={selectedImage ? (`/images/works/${selectedWork.id}/${selectedWork.id === 5 ? (selectedImage === 4 ? (`${selectedImage}.gif`) : (`${selectedImage}.png`)) : (`${selectedImage}.png`)}`) : (`/images/works/${selectedWork.id}/1.png`)}
+                                                        src={selectedImage ? (`${process.env.REACT_APP_IMAGE_DOMAIN}/images/works/${selectedWork.id}/${selectedImage}.png`) : (`${process.env.REACT_APP_IMAGE_DOMAIN}/images/works/${selectedWork.id}/1.png`)}
                                                         alt={selectedWork.id} />
                                                     <div className="mt-6 max-md:mt-4 px-2 flex justify-between">
                                                         {[1, 2, 3, 4, 5].map((item) => (
-                                                            <img key={item} onClick={() => setSelectedImage(item)} className="w-1/6 h-161 cursor-pointer hover:opacity-80 hover:scale-110" src={`/images/works/${selectedWork.id}/${selectedWork.id === 5 ? (item === 4 ? (`${item}.gif`) : (`${item}.png`)) : (`${item}.png`)}`} alt={selectedWork.id} />
+                                                            <img key={item} onClick={() => setSelectedImage(item)} className="w-1/6 h-161 cursor-pointer hover:opacity-80 hover:scale-110" src={`${process.env.REACT_APP_IMAGE_DOMAIN}/images/works/${selectedWork.id}/${item}.png`} alt={selectedWork.id} />
                                                         ))}
                                                     </div>
                                                 </div>
@@ -121,10 +121,10 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork }
                                                                 工夫 <span className="font-normal">{getDevicesNumber()}</span>
                                                             </div>
                                                             <div className="ml-2">
-                                                                {selectedWork.device[selectedImage] ? (
-                                                                    newLineUtil(selectedWork.device[selectedImage])
+                                                                {selectedWork[`device_${selectedImage}`] ? (
+                                                                    newLineUtil(selectedWork[`device_${selectedImage}`])
                                                                 ) : (
-                                                                    newLineUtil(selectedWork.device[1])
+                                                                    newLineUtil(selectedWork.device_1)
                                                                 )}
                                                             </div>
                                                         </div>

@@ -1,5 +1,4 @@
-import React, { useState } from 'react'
-import { works } from './db/Works'
+import React, { useEffect, useState } from 'react'
 import EachWork from './works/EachWork';
 import CreateWorkModal from './CreateWorkModal';
 
@@ -7,6 +6,21 @@ const Works = () => {
     const [selectedWork, setSelectedWork] = useState(0);
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [createWorkModalIsOpen, setCreateWorkModalIsOpen] = useState(false);
+    const [works, setWorks] = useState()
+
+    useEffect(() => {
+        async function fetchWorks() {
+            try {
+                const response = await fetch(`${process.env.REACT_APP_API_DOMAIN}/works/get`);
+                const data = await response.json();
+                setWorks(data);
+                console.log(data)
+            } catch (error) {
+                console.error('Error fetching new item list:', error);
+            }
+        }
+        fetchWorks();
+    }, [])
 
     const handleModal = (work) => {
         setSelectedWork(work);
@@ -25,10 +39,10 @@ const Works = () => {
                     </div>
                 </div>
                 <div className="flex flex-wrap justify-center items-center gap-6 mx-16 mt-8 max-xl:mx-8 max-lg:mx-4 pb-8 text-black font-bold">
-                    {works.slice().map((item) => (
+                    {works && works.slice().map((item) => (
                         <div className="max-xl:w-72 w-1/4" key={item.id}>
                             <img
-                                src={`/images/works/${item.id}/1.png`} alt={item.id}
+                                src={`${process.env.REACT_APP_IMAGE_DOMAIN}/images/works/${item.id}/1.png`} alt={item.id}
                                 onClick={() => handleModal(item)}
                                 className="hover:scale-110 transition-all cursor-pointer"
                                 style={{ "boxShadow": "00px 0px 6px 1px rgba(0, 0, 0, 0.45)" }}
@@ -41,7 +55,7 @@ const Works = () => {
                     ))}
                 </div>
             </div>
-            <EachWork modalIsOpen={modalIsOpen} setModalIsOpen={setModalIsOpen} selectedWork={selectedWork} setSelectedWork={setSelectedWork} />
+            <EachWork modalIsOpen={modalIsOpen} setModalIsOpen={setModalIsOpen} selectedWork={selectedWork} setSelectedWork={setSelectedWork} works={works} />
             <CreateWorkModal createWorkModalIsOpen={createWorkModalIsOpen} setCreateWorkModalIsOpen={setCreateWorkModalIsOpen} />
         </>
     )
