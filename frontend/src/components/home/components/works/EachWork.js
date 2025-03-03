@@ -17,7 +17,7 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, 
         console.log(selectedWork)
         const handleKeyDown = (event) => {
             if (event.key === "ArrowRight") {
-                console.log(selectedWork.id)
+                console.log(selectedWork.id + " " + works.length)
                 selectedWork.id !== works.length && setSelectedWork(works[parseInt(selectedWork.id)])
                 console.log(selectedWork.id)
             }
