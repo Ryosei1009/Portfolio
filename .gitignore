@@ -15,9 +15,7 @@ pids
 .npm/
 
 # dotenv environment variable files
-.env
-.env.test
-.env.production
+backend/.env
 
 # macOS
 .DS_Store
