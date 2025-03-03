@@ -3,7 +3,7 @@ import { Link } from 'react-scroll';
 
 const Header = () => {
     return (
-        <div className="bg-white bg-opacity-70 w-full fixed">
+        <div className="bg-white bg-opacity-70 w-full fixed z-10">
             <div className="mx-auto w-3/5 max-sm:mx-8 max-sm:w-full flex items-center h-16 relative">
                 <Link 
                     className="hover:opacity-60 cursor-pointer" 

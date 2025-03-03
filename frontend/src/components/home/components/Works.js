@@ -1,26 +1,27 @@
 import React, { useEffect, useState } from 'react'
 import EachWork from './works/EachWork';
 import CreateWorkModal from './CreateWorkModal';
+import { works } from './db/Works';
 
 const Works = () => {
     const [selectedWork, setSelectedWork] = useState(0);
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [createWorkModalIsOpen, setCreateWorkModalIsOpen] = useState(false);
-    const [works, setWorks] = useState()
+    // const [works, setWorks] = useState()
 
-    useEffect(() => {
-        async function fetchWorks() {
-            try {
-                const response = await fetch(`${process.env.REACT_APP_API_DOMAIN}/works/get`);
-                const data = await response.json();
-                setWorks(data);
-                console.log(data)
-            } catch (error) {
-                console.error('Error fetching new item list:', error);
-            }
-        }
-        fetchWorks();
-    }, [])
+    // useEffect(() => {
+    //     async function fetchWorks() {
+    //         try {
+    //             const response = await fetch(`${process.env.REACT_APP_API_DOMAIN}/works/get`);
+    //             const data = await response.json();
+    //             setWorks(data);
+    //             console.log(data)
+    //         } catch (error) {
+    //             console.error('Error fetching new item list:', error);
+    //         }
+    //     }
+    //     fetchWorks();
+    // }, [])
 
     const handleModal = (work) => {
         setSelectedWork(work);
@@ -40,12 +41,19 @@ const Works = () => {
                 </div>
                 <div className="flex flex-wrap justify-center items-center gap-6 mx-16 mt-8 max-xl:mx-8 max-lg:mx-4 pb-8 text-black font-bold">
                     {works && works.slice().map((item) => (
-                        <div className="max-xl:w-72 w-1/4" key={item.id}>
+                        <div className="max-xl:w-72 w-1/4 relative" key={item.id}>
                             <img
                                 src={`${process.env.REACT_APP_IMAGE_DOMAIN}/images/works/${item.id}/1.png`} alt={item.id}
                                 onClick={() => handleModal(item)}
-                                className="hover:scale-110 transition-all cursor-pointer"
-                                style={{ "boxShadow": "00px 0px 6px 1px rgba(0, 0, 0, 0.45)" }}
+                                onError={(e) => { e.target.src = `/images/works/error.png` }}
+                                className="hover:scale-110 transition-all cursor-pointer absolute"
+                                style={{ "boxShadow": "0px 0px 6px 1px rgba(0, 0, 0, 0.45)" }}
+                                loading="lazy"
+                            />
+                            <img
+                                src={`/images/works/error.png`} alt={item.id}
+                                onClick={() => handleModal(item)}
+                                className="hover:scale-110 transition-all cursor-pointer -z-50"
                                 loading="lazy"
                             />
                             <div className="text-xl flex flex-col justify-center items-center my-3">

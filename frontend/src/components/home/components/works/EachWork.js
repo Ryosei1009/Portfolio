@@ -84,49 +84,52 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, 
                                             <div className="text-5xl max-2xl:text-4xl max-xl:text-3xl max-lg:text-2xl max-md:text-xl font-bold mb-2">
                                                 <div dangerouslySetInnerHTML={{ __html: selectedWork.each_name }} />
                                             </div>
-                                            <a href={selectedWork.url} target="_blank" rel="noopener noreferrer" className={`${selectedWork.url && "text-blue-500 hover:underline"} outline-none`}>
-                                                {selectedWork.url_name}
-                                            </a>
+                                            {selectedWork.url === "none" ? (
+                                                <div className="outline-none">
+                                                    {selectedWork.url_name}
+                                                </div>
+                                            ) : (
+                                                <a href={selectedWork.url} target="_blank" rel="noopener noreferrer" className={`${selectedWork.url && "text-blue-500 hover:underline"} outline-none`}>
+                                                    {selectedWork.url_name}
+                                                </a>
+                                            )}
                                             <div className="flex max-lg:flex-col mt-8 max-lg:mt-4 items-center">
                                                 <div className="flex flex-col items-center w-11/24 max-lg:w-full mr-4 max-xl:mr-4 max-lg:mr-0">
                                                     <img onClick={() => setIsOpen(true)} className="w-45/48 cursor-pointer hover:opacity-80"
                                                         src={selectedImage ? (`${process.env.REACT_APP_IMAGE_DOMAIN}/images/works/${selectedWork.id}/${selectedImage}.png`) : (`${process.env.REACT_APP_IMAGE_DOMAIN}/images/works/${selectedWork.id}/1.png`)}
-                                                        alt={selectedWork.id} />
+                                                        alt={selectedWork.id} loading="lazy" onError={(e) => e.target.src = "/images/works/error.png"} />
                                                     <div className="mt-6 max-md:mt-4 px-2 flex justify-between">
                                                         {[1, 2, 3, 4, 5].map((item) => (
-                                                            <img key={item} onClick={() => setSelectedImage(item)} className="w-1/6 h-161 cursor-pointer hover:opacity-80 hover:scale-110" src={`${process.env.REACT_APP_IMAGE_DOMAIN}/images/works/${selectedWork.id}/${item}.png`} alt={selectedWork.id} />
+                                                            <img key={item} onClick={() => setSelectedImage(item)} className="w-1/6 h-161 cursor-pointer hover:opacity-80 hover:scale-110" src={`${process.env.REACT_APP_IMAGE_DOMAIN}/images/works/${selectedWork.id}/${item}.png`} alt={selectedWork.id} loading="lazy" onError={(e) => e.target.src = "/images/works/error.png"} />
                                                         ))}
                                                     </div>
                                                 </div>
                                                 <div className="h-full w-13/24 max-lg:w-full text-start max-lg:border-t-2 mt-4">
-                                                    <div className="flex flex-col text-sm max-xl:text-xs overflow-y-auto max-lg:h-full">
+                                                    <div className="flex flex-col text-sm max-xl:text-xs max-lg:h-full overflow-y-scroll h-96 scroll-hidden">
                                                         <div className="px-4 max-lg:px-3 py-2 max-lg:py-2 border-orange-500 border-4 mb-3">
                                                             <div className="text-xl max-lg:text-lg font-bold">
                                                                 目的
                                                             </div>
-                                                            <div className="ml-2">
-                                                                {newLineUtil(selectedWork.purpose)}
-                                                            </div>
+                                                            <div className="ml-2" dangerouslySetInnerHTML={{ __html: selectedWork.purpose }} />
                                                         </div>
                                                         <div className="px-4 max-lg:px-3 py-2 max-lg:py-2 border-blue-200 border-4 mb-3">
                                                             <div className="text-xl max-lg:text-lg font-bold">
                                                                 展望
                                                             </div>
-                                                            <div className="ml-2">
-                                                                {newLineUtil(selectedWork.outlook)}
-                                                            </div>
+                                                            <div className="ml-2" dangerouslySetInnerHTML={{ __html: selectedWork.outlook }} />
                                                         </div>
                                                         <div className="px-4 max-lg:px-3 py-2 max-lg:py-2 border-yellow-300 border-4">
                                                             <div className="text-xl max-lg:text-lg font-bold">
                                                                 工夫 <span className="font-normal">{getDevicesNumber()}</span>
                                                             </div>
-                                                            <div className="ml-2">
-                                                                {selectedWork[`device_${selectedImage}`] ? (
-                                                                    newLineUtil(selectedWork[`device_${selectedImage}`])
+                                                            <div className="ml-2" dangerouslySetInnerHTML={{
+                                                                __html: selectedWork[`device_${selectedImage}`] ? (
+                                                                    selectedWork[`device_${selectedImage}`]
                                                                 ) : (
-                                                                    newLineUtil(selectedWork.device_1)
-                                                                )}
-                                                            </div>
+                                                                    selectedWork.device_1
+                                                                )
+                                                            }}
+                                                            />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -137,8 +140,8 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, 
                             </Transition.Child>
                         </div>
                     </div>
-                </Dialog>
-            </Transition>
+                </Dialog >
+            </Transition >
             <ImageModal isOpen={isOpen} setIsOpen={setIsOpen} selectedImage={selectedImage} selectedWork={selectedWork} setSelectedImage={setSelectedImage} />
         </>
     )
