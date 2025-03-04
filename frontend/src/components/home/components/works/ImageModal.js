@@ -1,5 +1,5 @@
 import { Dialog, Transition } from '@headlessui/react'
-import React, { Fragment } from 'react'
+import React, { Fragment, useEffect } from 'react'
 
 const ImageModal = ({ isOpen, setIsOpen, selectedImage, selectedWork }) => {
     return (
@@ -29,7 +29,7 @@ const ImageModal = ({ isOpen, setIsOpen, selectedImage, selectedWork }) => {
                         <Dialog.Panel className="relative max-w-5xl mx-auto">
                             <img
                                 className="w-full h-auto max-h-screen bg-white object-contain"
-                                src={`${process.env.REACT_APP_IMAGE_DOMAIN}/images/works/${selectedWork.id}/${selectedImage}.png}`}
+                                src={`${process.env.REACT_APP_IMAGE_DOMAIN}/images/works/${selectedWork.id}/${selectedImage}.png`}
                                 alt=""
                             />
                         </Dialog.Panel>
