@@ -4,7 +4,7 @@ import { newLineUtil } from '../../../../utils/TextUtil';
 import ImageModal from './ImageModal';
 
 const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, works }) => {
-    const [selectedImage, setSelectedImage] = useState();
+    const [selectedImage, setSelectedImage] = useState(1);
     const [isOpen, setIsOpen] = useState(false)
     const handleClose = () => {
         setModalIsOpen(false)
