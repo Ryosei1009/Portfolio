@@ -3,12 +3,12 @@ import TopBanner from './components/TopBanner'
 import Works from './components/Works'
 import AboutMe from './components/AboutMe'
 
-const Home = () => {
+const Home = ({ isAuth }) => {
   return (
     <>
       <TopBanner />
-      <AboutMe />
-      <Works />
+      <AboutMe isAuth={isAuth} />
+      <Works isAuth={isAuth} />
     </>
   )
 }

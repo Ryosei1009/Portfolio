@@ -1,5 +1,5 @@
 import { Dialog, Transition } from '@headlessui/react'
-import React, { Fragment, useEffect } from 'react'
+import React, { Fragment } from 'react'
 
 const ImageModal = ({ isOpen, setIsOpen, selectedImage, selectedWork }) => {
     return (
