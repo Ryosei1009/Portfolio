@@ -34,18 +34,12 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, 
 
     const getDevicesNumber = () => {
         switch (selectedImage) {
-            case 1:
-                return " ①";
-            case 2:
-                return " ②";
-            case 3:
-                return " ③";
-            case 4:
-                return " ④";
-            case 5:
-                return " ⑤";
-            default:
-                return " ①";
+            case 1: return " ①";
+            case 2: return " ②";
+            case 3: return " ③";
+            case 4: return " ④";
+            case 5: return " ⑤";
+            default: return " ①";
         }
     }
 

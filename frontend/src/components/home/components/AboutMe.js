@@ -8,6 +8,7 @@ const AboutMe = ({ isAuth }) => {
     const [iconOpen, setIconOpen] = useState(false)
     const [aboutMe, setAboutMe] = useState()
 
+
     useEffect(() => {
         async function fetchAboutMe() {
             try {

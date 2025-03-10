@@ -3,8 +3,12 @@ import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import ImageModal from './ImageModal'
 import axios from 'axios'
+import UrlEditModal from './UrlEditModal'
 
 const EditEachWork = ({ selectedWork, selectedImage, getDevicesNumber, setSelectedImage, setIsOpen, isOpen, handleClose, modalIsOpen, setWorks, works }) => {
+    const [isEdit, setIsEdit] = useState(false)
+    const [editItem, setEditItem] = useState('')
+
     const [isEachNameMarkedText, setIsEachNameMarkedText] = useState(true)
     const eachNameRef = useRef(null)
     const adjustEachNameHeight = () => {
@@ -113,7 +117,7 @@ const EditEachWork = ({ selectedWork, selectedImage, getDevicesNumber, setSelect
     return (
         <>
             <Transition appear show={modalIsOpen} as={Fragment}>
-                <Dialog as="div" className="relative z-10" onClose={() => !isOpen && handleClose()}>
+                <Dialog as="div" className="relative z-10" onClose={() => !isOpen && !isEdit && handleClose()}>
                     <Transition.Child
                         as={Fragment}
                         enter="ease-out duration-300"
@@ -166,11 +170,19 @@ const EditEachWork = ({ selectedWork, selectedImage, getDevicesNumber, setSelect
                                                 />
                                             </div>
                                             {formData.url === "none" ? (
-                                                <div className="outline-none">
+                                                <div className="outline-none" onContextMenu={(event) => {
+                                                    setIsEdit(true)
+                                                    setEditItem("work")
+                                                    event.preventDefault()
+                                                }}>
                                                     {formData.url_name}
                                                 </div>
                                             ) : (
-                                                <a href={formData.url} target="_blank" rel="noopener noreferrer" className={`${formData.url && "text-blue-500 hover:underline"} outline-none`}>
+                                                <a href={formData.url} target="_blank" rel="noopener noreferrer" className={`${formData.url && "text-blue-500 hover:underline"} outline-none`} onContextMenu={(event) => {
+                                                    setIsEdit(true)
+                                                    setEditItem("work")
+                                                    event.preventDefault()
+                                                }}>
                                                     {formData.url_name}
                                                 </a>
                                             )}
@@ -283,6 +295,7 @@ const EditEachWork = ({ selectedWork, selectedImage, getDevicesNumber, setSelect
                 </Dialog >
             </Transition >
             <ImageModal isOpen={isOpen} setIsOpen={setIsOpen} selectedImage={selectedImage} selectedWork={selectedWork} setSelectedImage={setSelectedImage} />
+            <UrlEditModal isOpen={isEdit} setIsOpen={setIsEdit} formData={formData} editItem={editItem} handleChange={handleChange} />
         </>
     )
 }
