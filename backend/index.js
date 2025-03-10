@@ -3,6 +3,8 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const fs = require('fs');
 require('dotenv').config()
+const jwt = require('jsonwebtoken');
+const JWT_SECRET = process.env.JWT_SECRET;
 
 const app = express();
 const PORT = process.env.PORT;
@@ -69,6 +71,28 @@ app.use((req, res, next) => {
 
 const aboutMeRouter = require('./routes/AboutMe');
 app.use('/aboutme/', aboutMeRouter);
+
+const worksRouter = require('./routes/Works');
+app.use('/works/', worksRouter);
+
+app.post('/auth/check', (req, res) => {
+  const token = req.headers['authorization'];
+
+  jwt.verify(token, JWT_SECRET, (err) => {
+    if (err) return res.status(401).send('無許可');
+
+    res.send('ok');
+  });
+});
+
+app.post('/auth/create', (req, res) => {
+  const password = req.headers['password'];
+  console.log(password);
+  console.log(process.env.PASSWORD)
+  if (password !== process.env.PASSWORD) return res.status(401).send('無許可');
+
+  res.json({ token: jwt.sign({ id: 1 }, JWT_SECRET) });
+});
 
 const db = mysql.createConnection({
   host: process.env.MYSQL_HOST,

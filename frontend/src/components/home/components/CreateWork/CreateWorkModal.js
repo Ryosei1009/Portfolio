@@ -64,7 +64,7 @@ const CreateWorkModal = ({ createWorkModalIsOpen, setCreateWorkModalIsOpen }) =>
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                 >
-                    <div className="fixed inset-0 bg-black/25" />
+                    <div className="fixed inset-0 bg-black/50" />
                 </Transition.Child>
                 <div className="fixed inset-0 overflow-scroll scroll-hidden flex justify-center my-8 z-10">
                     <div className="transition-opacity w-2/3 max-2xl:w-4/5 max-lg:w-3/5 max-md:w-4/5 max-sm:w-11/12 outline-none">

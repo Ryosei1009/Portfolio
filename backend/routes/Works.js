@@ -13,7 +13,7 @@ const db = mysql.createConnection({
 
 router.get('/get', (req, res) => {
     db.query(
-        'SELECT * FROM about_me',
+        'SELECT * FROM works',
         (err, results) => {
             if (err) {
                 console.error(err);
@@ -24,15 +24,35 @@ router.get('/get', (req, res) => {
     );
 });
 
+router.post('/update/name', (req, res) => {
+    const token = req.headers['authorization'];
+    jwt.verify(token, JWT_SECRET, (err, decoded) => {
+        if (err) return res.status(401).send('無許可');
+        const { id, name } = req.body;
+        
+        db.query(
+            'UPDATE works SET name = ? where id = ?',
+            [name, id],
+            (err, results) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).send('データの取得に失敗しました。');
+                }
+                res.json(results);
+            }
+        );
+    })
+});
+
 router.post('/update', (req, res) => {
     const token = req.headers['authorization'];
     jwt.verify(token, JWT_SECRET, (err, decoded) => {
         if (err) return res.status(401).send('無許可');
-        const { name, sub_name, introduction, history, skill, mail, github_url, github_name, image } = req.body;
+        const { id, each_name, url, url_name, purpose, outlook, device_1, device_2, device_3, device_4, device_5 } = req.body;
         
         db.query(
-            'UPDATE about_me SET name = ?, sub_name = ?, introduction = ?, history = ?, skill = ?, mail = ?, github_url = ?, github_name = ?, image = ? where id = 1',
-            [name, sub_name, introduction, history, skill, mail, github_url, github_name, image],
+            'UPDATE works SET each_name = ?, url = ?, url_name = ?, purpose = ?, outlook = ?, device_1 = ?, device_2 = ?, device_3 = ?, device_4 = ?, device_5 = ? where id = ?',
+            [each_name, url, url_name, purpose, outlook, device_1, device_2, device_3, device_4, device_5, id],
             (err, results) => {
                 if (err) {
                     console.error(err);

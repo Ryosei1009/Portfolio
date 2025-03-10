@@ -127,7 +127,7 @@ const EditEachWork = ({ selectedWork, selectedImage, getDevicesNumber, setSelect
                         leaveFrom="opacity-100"
                         leaveTo="opacity-0"
                     >
-                        <div className="fixed inset-0 bg-black/25" />
+                        <div className="fixed inset-0 bg-black/50" />
                     </Transition.Child>
                     <div className="fixed inset-0 overflow-scroll scroll-hidden flex justify-center my-8">
                         <div className="transition-opacity w-2/3 max-2xl:w-4/5 max-lg:w-3/5 max-md:w-4/5 max-sm:w-11/12 outline-none">
@@ -294,7 +294,7 @@ const EditEachWork = ({ selectedWork, selectedImage, getDevicesNumber, setSelect
                     </div>
                 </Dialog >
             </Transition >
-            <ImageModal isOpen={isOpen} setIsOpen={setIsOpen} selectedImage={selectedImage} selectedWork={selectedWork} setSelectedImage={setSelectedImage} />
+            <ImageModal isOpen={isOpen} setIsOpen={setIsOpen} selectedImage={selectedImage} selectedWork={selectedWork} setSelectedImage={setSelectedImage} isAuth={true} />
             <UrlEditModal isOpen={isEdit} setIsOpen={setIsEdit} formData={formData} editItem={editItem} handleChange={handleChange} />
         </>
     )
