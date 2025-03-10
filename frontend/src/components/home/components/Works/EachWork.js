@@ -91,11 +91,11 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, 
                                                 <div className="flex max-lg:flex-col mt-8 max-lg:mt-4 items-center">
                                                     <div className="flex flex-col items-center w-11/24 max-lg:w-full mr-4 max-xl:mr-4 max-lg:mr-0">
                                                         <img onClick={() => setIsOpen(true)} className="w-45/48 cursor-pointer hover:opacity-80"
-                                                            src={selectedImage ? (`${process.env.REACT_APP_IMAGE_DOMAIN}/images/works/${selectedWork.id}/${selectedImage}.png`) : (`${process.env.REACT_APP_IMAGE_DOMAIN}/images/works/${selectedWork.id}/1.png`)}
+                                                            src={selectedImage ? (`${process.env.REACT_APP_API_DOMAIN}/images/works/${selectedWork.id}/${selectedImage}.png`) : (`${process.env.REACT_APP_API_DOMAIN}/images/works/${selectedWork.id}/1.png`)}
                                                             alt={selectedWork.id} loading="lazy" onError={(event) => event.target.src = "/images/works/error.png"} />
                                                         <div className="mt-6 max-md:mt-4 px-2 flex justify-between">
                                                             {[1, 2, 3, 4, 5].map((item) => (
-                                                                <img key={item} onClick={() => setSelectedImage(item)} className="w-1/6 h-161 cursor-pointer hover:opacity-80 hover:scale-110" src={`${process.env.REACT_APP_IMAGE_DOMAIN}/images/works/${selectedWork.id}/${item}.png`} alt={selectedWork.id} loading="lazy" onError={(event) => event.target.src = "/images/works/error.png"} />
+                                                                <img key={item} onClick={() => setSelectedImage(item)} className="w-1/6 h-161 cursor-pointer hover:opacity-80 hover:scale-110" src={`${process.env.REACT_APP_API_DOMAIN}/images/works/${selectedWork.id}/${item}.png`} alt={selectedWork.id} loading="lazy" onError={(event) => event.target.src = "/images/works/error.png"} />
                                                             ))}
                                                         </div>
                                                     </div>

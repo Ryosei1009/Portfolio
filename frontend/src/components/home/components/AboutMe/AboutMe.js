@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { EnvelopeIcon } from '@heroicons/react/24/solid'
 import IconModal from './IconModal'
-import { markedText } from '../../../utils/TextUtil'
+import { markedText } from '../../../../utils/TextUtil'
 import EditAboutMe from './EditAboutMe'
 
 const AboutMe = ({ isAuth }) => {

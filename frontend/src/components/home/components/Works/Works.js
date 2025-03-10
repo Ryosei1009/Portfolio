@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import EachWork from './EachWork';
-import CreateWorkModal from './CreateWorkModal';
+import CreateWorkModal from '../CreateWork/CreateWorkModal';
 import axios from 'axios';
 
 const Works = ({ isAuth }) => {
@@ -43,7 +43,7 @@ const Works = ({ isAuth }) => {
                     {works && works.slice().map((item) => (
                         <div className="max-xl:w-72 w-1/4 relative" key={item.id}>
                             <img
-                                src={`${process.env.REACT_APP_IMAGE_DOMAIN}/images/works/${item.id}/1.png`} alt={item.id}
+                                src={`${process.env.REACT_APP_API_DOMAIN}/images/works/${item.id}/1.png`} alt={item.id}
                                 onClick={() => handleModal(item)}
                                 onError={(event) => { event.target.src = `/images/works/error.png` }}
                                 className="hover:scale-110 transition-all cursor-pointer absolute"

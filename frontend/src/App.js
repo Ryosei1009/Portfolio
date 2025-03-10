@@ -27,9 +27,10 @@ function App() {
     }
     checkAuth();
   }, [])
+  
   return (
     <div>
-      <Header />
+      <Header isAuth={isAuth} setIsAuth={setIsAuth} />
       <Routes>
         <Route path="/" element={<Home isAuth={isAuth} />} />
         <Route path="/auth" element={<Auth />} />

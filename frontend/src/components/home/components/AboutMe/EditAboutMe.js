@@ -1,8 +1,8 @@
 import { EnvelopeIcon } from '@heroicons/react/24/solid'
 import React, { useEffect, useRef, useState } from 'react'
-import { markedText } from '../../../utils/TextUtil'
+import { markedText } from '../../../../utils/TextUtil'
 import axios from 'axios'
-import UrlEditModal from './UrlEditModal'
+import UrlEditModal from '../../../_utils/UrlEditModal'
 
 const EditAboutMe = ({ aboutMe, setIconOpen }) => {
     const [isEdit, setIsEdit] = useState(false)
