@@ -47,7 +47,7 @@ const ImageModal = ({ isOpen, setIsOpen, selectedImage, selectedWork, isAuth }) 
                 },
             });
         } catch (error) {
-            console.error('❌ 画像アップロード失敗:', error);
+            console.error('画像アップロード失敗:', error);
         }
     };
     

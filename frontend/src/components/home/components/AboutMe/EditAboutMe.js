@@ -79,6 +79,7 @@ const EditAboutMe = ({ aboutMe, setIconOpen }) => {
                         maxLength={255}
                         value={formData.name}
                         name="name"
+                        size={formData.name.length + 3}
                         onChange={(event) => handleChange(event)}
                     />
                     <input
@@ -87,6 +88,7 @@ const EditAboutMe = ({ aboutMe, setIconOpen }) => {
                         maxLength={255}
                         value={formData.sub_name}
                         name="sub_name"
+                        size={formData.sub_name.lengthw}
                         onChange={(event) => handleChange(event)}
                     />
                 </div>
