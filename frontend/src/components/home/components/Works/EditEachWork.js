@@ -54,7 +54,7 @@ const EditEachWork = ({ selectedWork, selectedImage, getDevicesNumber, setSelect
         device_4: selectedWork.device_4,
         device_5: selectedWork.device_5,
     })
-    
+
     useEffect(() => {
         if (selectedWork) {
             setFormData({

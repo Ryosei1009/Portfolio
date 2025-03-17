@@ -39,7 +39,7 @@ const ImageModal = ({ isOpen, setIsOpen, selectedImage, selectedWork, isAuth }) 
         formData.append('image', image);
         formData.append('id', selectedWork.id);
         formData.append('image_id', selectedImage);
-     
+
         try {
             await axios.post(`${process.env.REACT_APP_API_DOMAIN}/works/update_image`, formData, {
                 headers: {
@@ -50,8 +50,8 @@ const ImageModal = ({ isOpen, setIsOpen, selectedImage, selectedWork, isAuth }) 
             console.error('画像アップロード失敗:', error);
         }
     };
-    
-    
+
+
 
     return (
         <Transition appear show={isOpen} as={Fragment}>
@@ -78,11 +78,22 @@ const ImageModal = ({ isOpen, setIsOpen, selectedImage, selectedWork, isAuth }) 
                         leaveTo="opacity-0 scale-95"
                     >
                         <Dialog.Panel className="relative max-w-5xl mx-auto">
-                            <img
-                                className="w-full h-auto max-h-screen bg-white object-contain"
-                                src={`${previewUrl ? previewUrl : `${process.env.REACT_APP_API_DOMAIN}/images/works/${selectedWork.id}/${selectedImage}.png`}`}
-                                alt=""
-                            />
+                            {selectedWork.id === 10 && selectedImage === 2 ? (
+                                <video
+                                    className="w-full h-auto max-h-screen bg-white object-contain"
+                                    src={`${previewUrl ? previewUrl : `${process.env.REACT_APP_API_DOMAIN}/images/works/${selectedWork.id}/${selectedImage}.mp4`}`}
+                                    alt=""
+                                    controls
+                                    autoPlay
+                                    muted
+                                />
+                            ) : (
+                                <img
+                                    className="w-full h-auto max-h-screen bg-white object-contain"
+                                    src={`${previewUrl ? previewUrl : `${process.env.REACT_APP_API_DOMAIN}/images/works/${selectedWork.id}/${selectedImage}.png`}`}
+                                    alt=""
+                                />
+                            )}
                             {isAuth && (
                                 <>
                                     <span className="bg-green-500 text-white text-center mt-2 px-6 py-2 rounded-lg cursor-pointer" onClick={() => fileInputRef.current.click()}>
