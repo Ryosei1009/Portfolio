@@ -35,7 +35,7 @@ const Works = ({ isAuth }) => {
                     <div className="max-w-5xl mx-16 max-xl:mx-8 max-lg:mx-4 w-full">
                         <div className="text-5xl max-sm:text-4xl font-bold mb-4 max-md:mb-0 flex justify-between items-end">
                             <div>Works<span className="ml-4 text-xl">これまでしてきたこと</span></div>
-                            <div className="text-xl font-normal text-blue-600 hover:underline cursor-pointer" onClick={() => setCreateWorkModalIsOpen(true)}>新規作成</div>
+                            {isAuth && <div className="text-xl font-normal text-blue-600 hover:underline cursor-pointer" onClick={() => setCreateWorkModalIsOpen(true)}>新規作成</div> }
                         </div>
                     </div>
                 </div>
