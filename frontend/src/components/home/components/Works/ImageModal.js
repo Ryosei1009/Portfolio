@@ -78,7 +78,7 @@ const ImageModal = ({ isOpen, setIsOpen, selectedImage, selectedWork, isAuth }) 
                         leaveTo="opacity-0 scale-95"
                     >
                         <Dialog.Panel className="relative max-w-5xl mx-auto">
-                            {selectedWork.id === 10 && selectedImage === 2 ? (
+                            {selectedWork.id === 4 && selectedImage === 2 ? (
                                 <video
                                     className="w-full h-auto max-h-screen bg-white object-contain"
                                     src={`${previewUrl ? previewUrl : `${process.env.REACT_APP_API_DOMAIN}/images/works/${selectedWork.id}/${selectedImage}.mp4`}`}
