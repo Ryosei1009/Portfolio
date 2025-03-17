@@ -78,25 +78,14 @@ const EditEachWork = ({ selectedWork, selectedImage, getDevicesNumber, setSelect
     };
 
     useEffect(() => {
-        console.log(formData)
-        setWorks(works && works.map((work) => {
-            if (work.id === formData.id) {
-                return {
-                    ...work,
-                    each_name: formData.each_name,
-                    url: formData.url,
-                    url_name: formData.url_name,
-                    purpose: formData.purpose,
-                    outlook: formData.outlook,
-                    device_1: formData.device_1,
-                    device_2: formData.device_2,
-                    device_3: formData.device_3,
-                    device_4: formData.device_4,
-                    device_5: formData.device_5,
-                }
-            }
-            return work
-        }))
+        setWorks((prevWorks) => 
+            prevWorks?.map((work) =>
+                work.id === formData.id
+                    ? { ...work, ...formData }
+                    : work
+            )
+        );
+        
         const updateWork = async () => {
             try {
                 await axios.post(`${process.env.REACT_APP_API_DOMAIN}/works/update`, formData, {
@@ -112,7 +101,7 @@ const EditEachWork = ({ selectedWork, selectedImage, getDevicesNumber, setSelect
         if (Object.keys(formData).length > 0) {
             updateWork();
         }
-    }, [formData]);
+    }, [formData, setWorks]);
 
     return (
         <>
