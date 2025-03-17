@@ -30,7 +30,6 @@ function App() {
   
   return (
     <div>
-      <a href="/auth">aaa</a>
       <Header isAuth={isAuth} setIsAuth={setIsAuth} />
       <Routes>
         <Route path="/" element={<Home isAuth={isAuth} />} />
