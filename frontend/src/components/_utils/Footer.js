@@ -4,7 +4,7 @@ const Footer = () => {
   return (
     <>
         <div className="bg-black bg-opacity-10 py-8 flex items-center justify-center text-lg">
-            ©2025 Ryosei Shinohara
+            ©2026 Ryosei Shinohara
         </div>
     </>
   )
