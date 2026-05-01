@@ -45,18 +45,12 @@ const Works = ({ isAuth }) => {
                             <img
                                 src={`${process.env.REACT_APP_API_DOMAIN}/images/works/${item.id}/1.png`} alt={item.id}
                                 onClick={() => handleModal(item)}
-                                onError={(event) => { event.target.src = `/images/works/error.png` }}
-                                className="hover:scale-110 transition-all cursor-pointer absolute"
+                                // onError={(event) => { event.target.src = `/images/works/error.png` }}
+                                className="hover:scale-110 transition-all cursor-pointer"
                                 style={{ "boxShadow": "0px 0px 6px 1px rgba(0, 0, 0, 0.45)" }}
                                 loading="lazy"
                             />
-                            <img
-                                src={`/images/works/error.png`} alt={item.id}
-                                onClick={() => handleModal(item)}
-                                className="hover:scale-110 transition-all cursor-pointer -z-50"
-                                loading="lazy"
-                            />
-                            <div className="text-xl flex flex-col justify-center items-center my-3">
+                            <div className="max-md:text-lg text-xl flex flex-col justify-center items-center my-3">
                                 {isAuth ? (
                                     <WorkNameEditor item={item} />
                                 ) : (
