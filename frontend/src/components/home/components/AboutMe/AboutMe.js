@@ -43,7 +43,7 @@ const AboutMe = ({ isAuth }) => {
                                     </div>
                                 </div>
                                 <div className="flex max-md:flex-col my-4 items-center">
-                                    <div className="w-5/6 max-lg:w-4/6 mr-8 max-md:mr-0 max-md:w-full max-md:text-sm">
+                                    <div className="w-9/12 max-lg:w-4/6 mr-8 max-md:mr-0 max-md:w-full max-md:text-sm">
                                         <div className="flex justify-between items-start mb-4 max-sm:flex-col">
                                             <div className="w-3/4 max-sm:w-full max-sm:mb-2">
                                                 <h4>経歴</h4>
@@ -56,7 +56,7 @@ const AboutMe = ({ isAuth }) => {
                                         </div>
                                         <div dangerouslySetInnerHTML={markedText(aboutMe[0].introduction)} />
                                     </div>
-                                    <div className="w-1/6 max-md:w-full max-md:mt-4 max-md:flex max-md:flex-col max-md:items-center text-lg">
+                                    <div className="w-3/12 max-md:w-full max-md:mt-4 max-md:flex max-md:flex-col max-md:items-center text-lg">
                                         <a className="flex hover:opacity-80 w-fit max-md:text-sm" href={`mailto:${aboutMe[0].mail}`} target="_blank" rel="noopener noreferrer">
                                             <EnvelopeIcon className="w-6 h-6 max-md:w-5 max-md:h-5 mr-1"></EnvelopeIcon>{aboutMe[0].mail}
                                         </a>
