@@ -8,6 +8,7 @@ const Works = ({ isAuth }) => {
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [createWorkModalIsOpen, setCreateWorkModalIsOpen] = useState(false);
     const [works, setWorks] = useState()
+    const categories = ['学外活動', '大学', '高校']
 
     useEffect(() => {
         async function fetchWorks() {
@@ -35,31 +36,40 @@ const Works = ({ isAuth }) => {
                     <div className="max-w-5xl mx-16 max-xl:mx-8 max-lg:mx-4 w-full">
                         <div className="text-5xl max-sm:text-4xl font-bold mb-4 max-md:mb-0 flex justify-between items-end">
                             <div>Works<span className="ml-4 text-xl">これまでしてきたこと</span></div>
-                            {isAuth && <div className="text-xl font-normal text-blue-600 hover:underline cursor-pointer" onClick={() => setCreateWorkModalIsOpen(true)}>新規作成</div> }
+                            {isAuth && <div className="text-xl font-normal text-blue-600 hover:underline cursor-pointer" onClick={() => setCreateWorkModalIsOpen(true)}>新規作成</div>}
                         </div>
                     </div>
                 </div>
-                <div className="flex flex-wrap justify-center items-center gap-6 mx-16 mt-8 max-xl:mx-8 max-lg:mx-4 pb-8 text-black font-bold">
-                    {works && works.slice().map((item) => (
-                        <div className="max-xl:w-72 w-1/4 relative" key={item.id}>
-                            <img
-                                src={`${process.env.REACT_APP_API_DOMAIN}/images/works/${item.id}/1_mid.png`} alt={item.id}
-                                onClick={() => handleModal(item)}
-                                // onError={(event) => { event.target.src = `/images/works/error.png` }}
-                                className="hover:scale-110 transition-all cursor-pointer"
-                                style={{ "boxShadow": "0px 0px 6px 1px rgba(0, 0, 0, 0.45)" }}
-                                loading="lazy"
-                            />
-                            <div className="max-md:text-lg text-xl flex flex-col justify-center items-center my-3">
-                                {isAuth ? (
-                                    <WorkNameEditor item={item} />
-                                ) : (
-                                    <div dangerouslySetInnerHTML={{ __html: item.name }} />
-                                )}
+                {categories.map((category) => (
+                    <>
+                        <div className="w-full mt-2 flex justify-end">
+                            <div className="mr-4 text-xl font-bold bg-blue-500 px-4 py-1 rounded-lg text-white">
+                                {category}
                             </div>
                         </div>
-                    ))}
-                </div>
+                        <div className="flex flex-wrap justify-center items-center gap-6 mx-16 mt-8 max-xl:mx-8 max-lg:mx-4 pb-8 text-black font-bold">
+                            {works && works.filter((item) => item.category === category).slice().map((item) => (
+                                <div className="max-xl:w-72 w-1/4 relative" key={item.id}>
+                                    <img
+                                        src={`${process.env.REACT_APP_API_DOMAIN}/images/works/${item.id}/1_mid.png`} alt={item.id}
+                                        onClick={() => handleModal(item)}
+                                        // onError={(event) => { event.target.src = `/images/works/error.png` }}
+                                        className="hover:scale-110 transition-all cursor-pointer"
+                                        style={{ "boxShadow": "0px 0px 6px 1px rgba(0, 0, 0, 0.45)" }}
+                                        loading="lazy"
+                                    />
+                                    <div className="max-md:text-lg text-xl flex flex-col justify-center items-center my-3">
+                                        {isAuth ? (
+                                            <WorkNameEditor item={item} />
+                                        ) : (
+                                            <div dangerouslySetInnerHTML={{ __html: item.name }} />
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </>
+                ))}
             </div>
             <EachWork modalIsOpen={modalIsOpen} setModalIsOpen={setModalIsOpen} selectedWork={selectedWork} setSelectedWork={setSelectedWork} works={works} isAuth={isAuth} setWorks={setWorks} />
             <CreateWorkModal createWorkModalIsOpen={createWorkModalIsOpen} setCreateWorkModalIsOpen={setCreateWorkModalIsOpen} />
