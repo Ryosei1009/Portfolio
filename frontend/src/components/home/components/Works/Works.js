@@ -51,9 +51,9 @@ const Works = ({ isAuth }) => {
                             {works && works.filter((item) => item.category === category).slice().map((item) => (
                                 <div className="max-xl:w-72 w-1/4 relative" key={item.id}>
                                     <img
-                                        src={`${process.env.REACT_APP_API_DOMAIN}/images/works/${item.id}/1_mid.png`} alt={item.id}
+                                        src={`${process.env.REACT_APP_API_DOMAIN}/images/works/${item.id}/1_mid.jpg`} alt={item.id}
                                         onClick={() => handleModal(item)}
-                                        // onError={(event) => { event.target.src = `/images/works/error.png` }}
+                                        // onError={(event) => { event.target.src = `/images/works/error.jpg` }}
                                         className="hover:scale-110 transition-all cursor-pointer"
                                         style={{ "boxShadow": "0px 0px 6px 1px rgba(0, 0, 0, 0.45)" }}
                                         loading="lazy"

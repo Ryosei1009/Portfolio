@@ -90,7 +90,7 @@ const ImageModal = ({ isOpen, setIsOpen, selectedImage, selectedWork, isAuth }) 
                             ) : (
                                 <img
                                     className="w-full h-auto max-h-screen bg-white object-contain"
-                                    src={`${previewUrl ? previewUrl : `${process.env.REACT_APP_API_DOMAIN}/images/works/${selectedWork.id}/${selectedImage}.png`}`}
+                                    src={`${previewUrl ? previewUrl : `${process.env.REACT_APP_API_DOMAIN}/images/works/${selectedWork.id}/${selectedImage}.jpg`}`}
                                     alt=""
                                 />
                             )}
@@ -100,7 +100,7 @@ const ImageModal = ({ isOpen, setIsOpen, selectedImage, selectedWork, isAuth }) 
                                         画像更新
                                     </span>
                                     {isNotImage && <div className="text-red-500 mb-1">画像を選択してください。</div>}
-                                    <input accept="image/png" type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
+                                    <input accept="image/jpg" type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
                                 </>
                             )}
                         </Dialog.Panel>
