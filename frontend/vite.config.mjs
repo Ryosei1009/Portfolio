@@ -1,9 +1,10 @@
 import { defineConfig, loadEnv, transformWithOxc } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// CRA からの移行用設定
+// Create React App からの移行用設定
 // - src 配下の .js ファイルに書かれた JSX をそのまま扱う
 // - process.env.REACT_APP_* を従来どおり参照できるようにする
+//   (.env ファイルとビルド環境の環境変数の両方から読み込む)
 const jsxInJs = () => ({
   name: 'treat-js-files-as-jsx',
   enforce: 'pre',
@@ -22,6 +23,8 @@ export default defineConfig(({ mode }) => {
   for (const [key, value] of Object.entries(env)) {
     define[`process.env.${key}`] = JSON.stringify(value)
   }
+  // 未設定の REACT_APP_* を参照しても CRA と同様に undefined になるようにする
+  define['process.env'] = JSON.stringify({ ...env, NODE_ENV: mode === 'production' ? 'production' : 'development' })
 
   return {
     plugins: [jsxInJs(), react()],
