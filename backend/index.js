@@ -18,7 +18,7 @@ const server = require('https').createServer({
   cert: fs.readFileSync(process.env.CERT_PATH),
 }, app)
 
-const allowedOrigins = ['http://localhost:3000', 'https://portfolio.shino.zip'];
+const allowedOrigins = ['http://localhost:3000', 'https://www.shinoryo.com'];
 
 app.use((req, res, next) => {
   const origin = req.headers.origin;

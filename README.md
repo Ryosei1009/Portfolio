@@ -50,7 +50,7 @@ Dependabot のアラートに対応するため、Create React App から Vite �
 Browser ──▶ www.shinoryo.com     (React / Vite build)
                │
                ▼  REST API
-            api.shino.zip        (Express, HTTPS)
+            api.shinoryo.com        (Express, HTTPS)
                │
                ▼
              MySQL
