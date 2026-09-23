@@ -4,7 +4,7 @@
 
 # Ryosei Shinohara's Portfolio Website
 
-**▶ [portfolio.shino.zip](https://portfolio.shino.zip)**
+**▶ [www.shinoryo.com](https://www.shinoryo.com)**
 
 </div>
 
@@ -47,7 +47,7 @@ Dependabot のアラートに対応するため、Create React App から Vite �
 | **Infra** | HTTPS, 独自ドメイン (`shino.zip`) |
 
 ```
-Browser ──▶ portfolio.shino.zip  (React / Vite build)
+Browser ──▶ www.shinoryo.com     (React / Vite build)
                │
                ▼  REST API
             api.shino.zip        (Express, HTTPS)
@@ -66,5 +66,5 @@ Browser ──▶ portfolio.shino.zip  (React / Vite build)
 
 ## Contact
 
-- GitHub: [@ShinoChan0](https://github.com/ShinoChan0)
-- Mail: main@shino.zip
+- GitHub: [@Ryosei1009](https://github.com/Ryosei1009)
+- Mail: shinoryo1009@gmail.com
