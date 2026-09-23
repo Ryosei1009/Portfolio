@@ -39,12 +39,13 @@ Dependabot のアラートに対応するため、Create React App から Vite �
 
 ## 技術スタック
 
-| | |
-| --- | --- |
+
+|              |                                                         |
+| ------------ | ------------------------------------------------------- |
 | **Frontend** | React 18, React Router, Vite, Tailwind CSS, Headless UI |
-| **Backend** | Node.js, Express, JWT, Multer |
-| **Database** | MySQL |
-| **Infra** | HTTPS, 独自ドメイン (`shino.zip`) |
+| **Backend**  | Node.js, Express, JWT, Multer                           |
+| **Database** | MySQL                                                   |
+| **Infra**    | HTTPS, 独自ドメイン (`shinoryo.com`)                    |
 
 ```
 Browser ──▶ www.shinoryo.com     (React / Vite build)
