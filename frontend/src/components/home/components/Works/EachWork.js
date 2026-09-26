@@ -135,9 +135,9 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, 
                                 </Transition.Child>
                             </div>
                         </div>
+                        <ImageModal isOpen={isOpen} setIsOpen={setIsOpen} selectedImage={selectedImage} selectedWork={selectedWork} setSelectedImage={setSelectedImage} isAuth={false} />
                     </Dialog >
                 </Transition >
-                <ImageModal isOpen={isOpen} setIsOpen={setIsOpen} selectedImage={selectedImage} selectedWork={selectedWork} setSelectedImage={setSelectedImage} isAuth={false} />
             </>
         )
     )
