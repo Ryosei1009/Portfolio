@@ -281,9 +281,9 @@ const EditEachWork = ({ selectedWork, selectedImage, getDevicesNumber, setSelect
                             </Transition.Child>
                         </div>
                     </div>
+                    <ImageModal isOpen={isOpen} setIsOpen={setIsOpen} selectedImage={selectedImage} selectedWork={selectedWork} setSelectedImage={setSelectedImage} isAuth={true} />
                 </Dialog >
             </Transition >
-            <ImageModal isOpen={isOpen} setIsOpen={setIsOpen} selectedImage={selectedImage} selectedWork={selectedWork} setSelectedImage={setSelectedImage} isAuth={true} />
             <UrlEditModal isOpen={isEdit} setIsOpen={setIsEdit} formData={formData} editItem={editItem} handleChange={handleChange} />
         </>
     )
