@@ -27,7 +27,7 @@ const IconModal = ({ iconOpen, setIconOpen }) => {
                         leaveTo="opacity-0 scale-95"
                     >
                         <Dialog.Panel className="flex justify-center transition-opacity top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 absolute outline-none">
-                            <img className="w-90vw border-black bg-white border-4" src="/images/aboutme/logo.png" alt="" />
+                            <img className="w-90vw border-black bg-white border-4" src="/images/aboutme/logo.jpg" alt="" />
                         </Dialog.Panel>
                     </Transition.Child>
                 </div>
