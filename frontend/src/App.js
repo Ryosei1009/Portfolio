@@ -5,9 +5,14 @@ import NotFound from "./components/_utils/NotFound";
 import Header from "./components/_utils/Header";
 import { useEffect, useState } from "react";
 import Auth from "./components/Auth";
+import EditModeBar from "./components/_utils/EditModeBar";
+import { flushAll, hasUnsavedChanges } from "./utils/useAutoSave";
 
 function App() {
   const [isAuth, setIsAuth] = useState(false)
+  // 管理者が公開画面と同じ表示で確認するとき true
+  const [isPreview, setIsPreview] = useState(false)
+  const isEditing = isAuth && !isPreview
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (!token) return
@@ -32,20 +37,25 @@ function App() {
     checkAuth();
   }, [])
 
-  const logout = () => {
+  const logout = async () => {
+    // 未保存の分を保存してからトークンを消す
+    await flushAll()
+    if (hasUnsavedChanges() && !window.confirm('保存できていない変更があります。ログアウトすると失われますが、よろしいですか？')) return
     localStorage.removeItem('token')
     setIsAuth(false)
+    setIsPreview(false)
   }
 
   return (
-    <div>
-      <Header isAuth={isAuth} onLogout={logout} />
+    <div className={isAuth ? 'pb-24' : ''}>
+      <Header />
       <Routes>
-        <Route path="/" element={<Home isAuth={isAuth} />} />
+        <Route path="/" element={<Home isAuth={isEditing} />} />
         <Route path="/auth" element={<Auth isAuth={isAuth} setIsAuth={setIsAuth} onLogout={logout} />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Footer />
+      {isAuth && <EditModeBar isPreview={isPreview} setIsPreview={setIsPreview} onLogout={logout} />}
     </div>
   );
 }

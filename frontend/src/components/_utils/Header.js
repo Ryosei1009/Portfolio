@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 
-const Header = ({ isAuth, onLogout }) => {
+const Header = () => {
     // トップ以外のページ（ログイン画面など）からはトップの各セクションへ移動する
     const { pathname } = useLocation()
     const base = pathname === '/' ? '' : '/'
@@ -24,17 +24,6 @@ const Header = ({ isAuth, onLogout }) => {
                         Works
                     </div>
                 </a>
-                {isAuth && (
-                    <button
-                        type="button"
-                        className="ml-auto hover:opacity-60"
-                        onClick={onLogout}
-                    >
-                        <div className="w-full px-4 py-4">
-                            Logout
-                        </div>
-                    </button>
-                )}
             </div>
         </div>
     );

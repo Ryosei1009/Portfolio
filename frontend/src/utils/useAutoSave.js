@@ -1,4 +1,26 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from 'react'
+
+// 画面全体の保存状態（編集モードのバーで使う）
+const entries = new Map()
+const listeners = new Set()
+const notify = () => listeners.forEach((listener) => listener())
+const subscribe = (listener) => {
+    listeners.add(listener)
+    return () => listeners.delete(listener)
+}
+const summarize = () => {
+    const statuses = [...entries.values()].map((entry) => entry.status)
+    return ['error', 'saving', 'pending', 'saved'].find((status) => statuses.includes(status)) ?? 'idle'
+}
+
+// 一番気にすべき状態を返す（失敗 → 保存中 → 未保存 → 保存済み の順）
+export const useSaveSummary = () => useSyncExternalStore(subscribe, summarize)
+
+// 待っている分をすべてすぐ保存する（ログアウトの前など）
+export const flushAll = () => Promise.all([...entries.values()].map((entry) => entry.flush()))
+
+// 保存できていない変更が残っているか
+export const hasUnsavedChanges = () => [...entries.values()].some((entry) => entry.isDirty())
 
 // 管理者画面の自動保存
 // - 表示しただけでは保存しない（最初の値を「保存済み」とみなす）
@@ -74,6 +96,17 @@ export const useAutoSave = (data, save, { delay = 1000 } = {}) => {
     useEffect(() => () => {
         if (JSON.stringify(latest.current) !== lastSaved.current) flush()
     }, [flush])
+
+    // 画面全体の保存状態に登録する
+    const key = useId()
+    useEffect(() => {
+        entries.set(key, { status, flush, isDirty: () => JSON.stringify(latest.current) !== lastSaved.current })
+        notify()
+    }, [key, status, flush])
+    useEffect(() => () => {
+        entries.delete(key)
+        notify()
+    }, [key])
 
     // 未保存のままページを離れようとしたら確認する
     useEffect(() => {
