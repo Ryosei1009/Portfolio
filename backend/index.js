@@ -23,15 +23,18 @@ const server = process.env.KEY_PATH && process.env.CERT_PATH
 
 const allowedOrigins = ['http://localhost:3000', 'https://www.shinoryo.com'];
 
+// 許可していないオリジンのページからのリクエストには 403 を返す（何も返さずに止めない）
+// Origin の無いリクエスト（<img> での画像の読み込みや、サーバー間の通信など）はそのまま通す
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    next();
+  if (origin && !allowedOrigins.includes(origin)) {
+    return res.status(403).send('許可されていないオリジンです。');
   }
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
 });
 
 // パスワードやトークンはログに残さない
