@@ -1,6 +1,7 @@
 import { Dialog, Transition } from '@headlessui/react'
 import React, { Fragment, useRef, useState } from 'react'
 import axios from 'axios'
+import { workImageAlt } from '../../../../utils/TextUtil'
 
 const ImageModal = ({ isOpen, setIsOpen, selectedImage, selectedWork, isAuth }) => {
     const fileInputRef = useRef(null)
@@ -82,7 +83,7 @@ const ImageModal = ({ isOpen, setIsOpen, selectedImage, selectedWork, isAuth }) 
                                 <video
                                     className="w-full h-auto max-h-screen bg-white object-contain"
                                     src={`${previewUrl ? previewUrl : `${process.env.REACT_APP_API_DOMAIN}/images/works/${selectedWork.id}/${selectedImage}.mp4`}`}
-                                    alt=""
+                                    aria-label={`${workImageAlt(selectedWork, selectedImage)}（動画）`}
                                     controls
                                     autoPlay
                                     muted
@@ -91,7 +92,7 @@ const ImageModal = ({ isOpen, setIsOpen, selectedImage, selectedWork, isAuth }) 
                                 <img
                                     className="w-full h-auto max-h-screen bg-white object-contain"
                                     src={`${previewUrl ? previewUrl : `${process.env.REACT_APP_API_DOMAIN}/images/works/${selectedWork.id}/${selectedImage}.jpg`}`}
-                                    alt=""
+                                    alt={workImageAlt(selectedWork, selectedImage)}
                                 />
                             )}
                             {isAuth && (

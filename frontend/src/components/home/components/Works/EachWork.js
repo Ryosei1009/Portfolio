@@ -2,6 +2,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import React, { Fragment, useEffect, useState } from 'react';
 import ImageModal from './ImageModal';
 import EditEachWork from './EditEachWork';
+import { workImageAlt } from '../../../../utils/TextUtil';
 
 const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, works, orderedWorks, isAuth, setWorks }) => {
     const [selectedImage, setSelectedImage] = useState(1);
@@ -96,10 +97,10 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, 
                                                     <div className="flex flex-col items-center w-11/24 max-lg:w-full mr-4 max-xl:mr-4 max-lg:mr-0">
                                                         <img onClick={() => setIsOpen(true)} className="w-45/48 cursor-pointer hover:opacity-80"
                                                             src={selectedImage ? (`${process.env.REACT_APP_API_DOMAIN}/images/works/${selectedWork.id}/${selectedImage}.jpg`) : (`${process.env.REACT_APP_API_DOMAIN}/images/works/${selectedWork.id}/1.jpg`)}
-                                                            alt={selectedWork.id} loading="lazy" onError={(event) => event.target.src = "/images/works/error.jpg"} />
+                                                            alt={workImageAlt(selectedWork, selectedImage || 1)} loading="lazy" onError={(event) => event.target.src = "/images/works/error.jpg"} />
                                                         <div className="mt-6 max-md:mt-4 px-2 flex justify-between">
                                                             {[1, 2, 3, 4, 5].map((item) => (
-                                                                <img key={item} onClick={() => setSelectedImage(item)} className="w-1/6 h-161 cursor-pointer hover:opacity-80 hover:scale-110" src={`${process.env.REACT_APP_API_DOMAIN}/images/works/${selectedWork.id}/${item}_small.jpg`} alt={selectedWork.id} loading="lazy" onError={(event) => event.target.src = "/images/works/error.jpg"} />
+                                                                <img key={item} onClick={() => setSelectedImage(item)} className="w-1/6 h-161 cursor-pointer hover:opacity-80 hover:scale-110" src={`${process.env.REACT_APP_API_DOMAIN}/images/works/${selectedWork.id}/${item}_small.jpg`} alt={workImageAlt(selectedWork, item)} loading="lazy" onError={(event) => event.target.src = "/images/works/error.jpg"} />
                                                             ))}
                                                         </div>
                                                     </div>

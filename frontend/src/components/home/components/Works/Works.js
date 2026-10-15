@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import EachWork from './EachWork';
 import CreateWorkModal from '../CreateWork/CreateWorkModal';
 import axios from 'axios';
+import { workImageAlt } from '../../../../utils/TextUtil';
 
 const Works = ({ isAuth }) => {
     const [selectedWork, setSelectedWork] = useState(0);
@@ -124,7 +125,7 @@ const WorkCard = ({ item, size, isAuth, onOpen }) => {
                     </div>
                 )}
                 <img
-                    src={`${process.env.REACT_APP_API_DOMAIN}/images/works/${item.id}/1_mid.jpg`} alt={item.id}
+                    src={`${process.env.REACT_APP_API_DOMAIN}/images/works/${item.id}/1_mid.jpg`} alt={workImageAlt(item, 1)}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
                 />

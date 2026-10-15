@@ -39,7 +39,7 @@ const TopBanner = () => {
           </div>
         </div>
         <div className="w-1/2 pr-16 max-md:w-3/4 max-md:-mr-6 max-lg:pr-4">
-          <img className="w-full h-auto" src="/images/home/mv.png" width="750" height="692" alt="" />
+          <img className="w-full h-auto" src="/images/home/mv.png" width="750" height="692" alt="海辺の岩場に座って海を眺める写真" />
         </div>
       </div>
     </>

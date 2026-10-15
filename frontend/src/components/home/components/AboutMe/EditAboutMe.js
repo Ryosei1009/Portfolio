@@ -71,7 +71,7 @@ const EditAboutMe = ({ aboutMe, setIconOpen }) => {
     return (
         <>
             <div className="flex items-center justify-center my-4 max-md:my-2">
-                <img loading="lazy" onClick={() => setIconOpen(true)} src={formData.image} alt="" className="w-1/6 max-md:w-1/5 max-sm:w-1/4 border-white border-2 rounded-full cursor-pointer hover:opacity-80" />
+                <img loading="lazy" onClick={() => setIconOpen(true)} src={formData.image} alt={`${formData.name}のプロフィール写真`} className="w-1/6 max-md:w-1/5 max-sm:w-1/4 border-white border-2 rounded-full cursor-pointer hover:opacity-80" />
                 <div className="ml-8 w-2/3 max-sm:w-3/4">
                     <input
                         className="ml-2 font-bold text-4xl max-md:text-3xl max-sm:text-2xl outline-none border-b-2 border-gray-300 block"
