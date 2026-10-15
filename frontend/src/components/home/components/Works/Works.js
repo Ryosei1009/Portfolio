@@ -8,9 +8,18 @@ import { showFallbackImage, workImageUrl } from './workImage';
 import WorkSettingsDialog from './WorkSettingsDialog';
 import { EditButton } from '../../../_utils/EditControls';
 import { useAutoSave } from '../../../../utils/useAutoSave';
+import SaveStatus from '../../../_utils/SaveStatus';
+import CategoryEditor, { categoryProblem } from './CategoryEditor';
 
 // 並び順として保存する値（id と sort_order だけ）
 const toOrder = (works) => works?.map((item) => ({ id: item.id, sort_order: item.sort_order ?? 0 }))
+
+// カテゴリ一覧がまだ読み込めていないとき（または読み込めなかったとき）に使う
+const DEFAULT_CATEGORIES = ['学外活動', '大学', '高校']
+// 画面の中で名前を変えたり並べ替えたりしても、どのカテゴリか分かるように key を付ける
+let nextCategoryKey = 1
+const newCategoryKey = () => nextCategoryKey++
+const withCategoryKeys = (names) => names.map((name) => ({ key: newCategoryKey(), name }))
 
 
 const Works = ({ isAuth, onLoaded }) => {
@@ -23,7 +32,49 @@ const Works = ({ isAuth, onLoaded }) => {
     // 設定を編集している作品の id
     const [settingsWorkId, setSettingsWorkId] = useState(null);
     const [works, setWorks] = useState()
-    const categories = ['学外活動', '大学', '高校']
+
+    // カテゴリ一覧（管理者が編集できる）。savedNames は DB に保存済みの名前（key → 名前）
+    // 作品は保存済みの名前で持っているので、名前を入力している間も、作品は保存済みの名前でまとめる
+    const [categoryItems, setCategoryItems] = useState(() => withCategoryKeys(DEFAULT_CATEGORIES))
+    const [savedNames, setSavedNames] = useState(() => Object.fromEntries(categoryItems.map((item) => [item.key, item.name])))
+    const [isEditingCategories, setIsEditingCategories] = useState(false)
+    const categoryDraft = useMemo(() => categoryItems.map(({ key, name }) => ({ key, name })), [categoryItems])
+    const saveCategories = async (draft) => {
+        const problem = categoryProblem(draft)
+        if (problem) throw new Error(problem)
+        const items = draft.map((item) => ({ name: item.name.trim(), previous_name: savedNames[item.key] ?? null }))
+        await axios.post(`${process.env.REACT_APP_API_DOMAIN}/categories/save`, { items }, {
+            headers: {
+                'Authorization': localStorage.getItem('token')
+            }
+        })
+        // サーバーでは作品のカテゴリも書き換わったので、画面の作品にも反映する
+        const renamed = new Map(items.filter((item) => item.previous_name !== null).map((item) => [item.previous_name, item.name]))
+        setWorks((prev) => prev?.map((work) => (renamed.has(work.category) ? { ...work, category: renamed.get(work.category) } : work)))
+        setSavedNames(Object.fromEntries(draft.map((item) => [item.key, item.name.trim()])))
+    }
+    const { status: categoryStatus, flush: flushCategories, reset: resetCategories } = useAutoSave(categoryDraft, saveCategories)
+    // 作品の設定や新規作成で選べるのは、保存済みのカテゴリだけ
+    const categories = categoryItems.map((item) => savedNames[item.key]).filter(Boolean)
+
+    useEffect(() => {
+        async function fetchCategories() {
+            try {
+                const response = await fetch(`${process.env.REACT_APP_API_DOMAIN}/categories/get`)
+                if (!response.ok) return
+                const names = await response.json()
+                if (!Array.isArray(names) || names.length === 0) return
+                const items = withCategoryKeys(names)
+                // 読み込んだ値は保存済みとして扱う
+                resetCategories(items.map(({ key, name }) => ({ key, name })))
+                setCategoryItems(items)
+                setSavedNames(Object.fromEntries(items.map((item) => [item.key, item.name])))
+            } catch (error) {
+                console.error('Error fetching categories:', error)
+            }
+        }
+        fetchCategories()
+    }, [])
 
     // 並び替え（管理者のみ）。読み込んだ並び順は保存済みとして扱う
     const order = useMemo(() => toOrder(works), [works])
@@ -68,10 +119,16 @@ const Works = ({ isAuth, onLoaded }) => {
     const sortedWorks = [...visibleWorks].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.id - b.id)
     const featuredWorks = sortedWorks.filter((item) => Number(item.is_featured) === 1)
     const otherWorks = sortedWorks.filter((item) => Number(item.is_featured) !== 1)
-    const worksByCategory = categories.map((category) => ({
-        category,
-        items: otherWorks.filter((item) => item.category === category),
+    const worksByCategory = categoryItems.map((category) => ({
+        key: category.key,
+        category: category.name,
+        items: otherWorks.filter((item) => item.category === savedNames[category.key]),
     }))
+    // どのカテゴリにも当てはまらない作品（管理者にだけ「未分類」として出す）
+    const savedNameList = Object.values(savedNames)
+    const uncategorized = otherWorks.filter((item) => !savedNameList.includes(item.category))
+    if (isAuth && uncategorized.length > 0) worksByCategory.push({ key: 'uncategorized', category: '未分類', items: uncategorized })
+    const workCounts = Object.fromEntries(categoryItems.map((category) => [category.key, works?.filter((item) => item.category === savedNames[category.key]).length ?? 0]))
 
     // 画面に並んでいる順（詳細モーダルの ← → 移動で使う）
     const orderedWorks = [...featuredWorks, ...worksByCategory.flatMap(({ items }) => items)]
@@ -119,16 +176,29 @@ const Works = ({ isAuth, onLoaded }) => {
                         <div className="text-5xl max-sm:text-4xl font-bold mb-4 max-md:mb-0 flex flex-wrap justify-between items-end gap-3">
                             <div>Works<span className="ml-4 text-xl">これまでしてきたこと</span></div>
                             {isAuth && (
-                                <button
-                                    type="button"
-                                    onClick={() => setCreateWorkModalIsOpen(true)}
-                                    className="inline-flex items-center gap-1 rounded-full bg-gray-900 px-4 py-2 text-sm font-bold text-white hover:bg-gray-700"
-                                >
-                                    <PlusIcon className="h-4 w-4" aria-hidden="true" />
-                                    作品を追加
-                                </button>
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <SaveStatus status={categoryStatus} onRetry={flushCategories} />
+                                    <EditButton label="カテゴリを編集" isOpen={isEditingCategories} onClick={() => setIsEditingCategories(!isEditingCategories)} />
+                                    <button
+                                        type="button"
+                                        onClick={() => setCreateWorkModalIsOpen(true)}
+                                        className="inline-flex items-center gap-1 rounded-full bg-gray-900 px-4 py-2 text-sm font-bold text-white hover:bg-gray-700"
+                                    >
+                                        <PlusIcon className="h-4 w-4" aria-hidden="true" />
+                                        作品を追加
+                                    </button>
+                                </div>
                             )}
                         </div>
+                        {isAuth && isEditingCategories && (
+                            <CategoryEditor
+                                items={categoryItems}
+                                setItems={setCategoryItems}
+                                workCounts={workCounts}
+                                onClose={() => setIsEditingCategories(false)}
+                                newKey={newCategoryKey}
+                            />
+                        )}
                     </div>
                 </div>
                 <div className="flex justify-center pb-16">
@@ -150,8 +220,8 @@ const Works = ({ isAuth, onLoaded }) => {
                         )}
 
                         {/* その他（カテゴリごと） */}
-                        {worksByCategory.filter(({ items }) => items.length > 0).map(({ category, items }) => (
-                            <React.Fragment key={category}>
+                        {worksByCategory.filter(({ items }) => items.length > 0).map(({ key, category, items }) => (
+                            <React.Fragment key={key}>
                                 <div className="mt-12 flex">
                                     <div className="text-xl font-bold bg-blue-500 px-4 py-1 rounded-lg text-white">
                                         {category}

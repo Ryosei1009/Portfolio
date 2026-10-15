@@ -93,6 +93,9 @@ app.use('/settings/', settingsRouter);
 const achievementsRouter = require('./routes/Achievements');
 app.use('/achievements/', achievementsRouter);
 
+const categoriesRouter = require('./routes/Categories');
+app.use('/categories/', categoriesRouter);
+
 app.post('/auth/check', (req, res) => {
   const token = req.headers['authorization'];
 
