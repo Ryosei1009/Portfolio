@@ -12,16 +12,21 @@ const db = mysql.createConnection({
 });
 
 router.get('/get', (req, res) => {
-    db.query(
-        'SELECT * FROM works ORDER BY is_featured DESC, sort_order, id',
-        (err, results) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).send('データの取得に失敗しました。');
+    // 非公開の作品は、有効なトークンを持つ管理者にだけ返す
+    const token = req.headers['authorization'];
+    jwt.verify(token, JWT_SECRET, (authErr) => {
+        const where = authErr ? 'WHERE is_published = 1 ' : '';
+        db.query(
+            `SELECT * FROM works ${where}ORDER BY is_featured DESC, sort_order, id`,
+            (err, results) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).send('データの取得に失敗しました。');
+                }
+                res.json(results);
             }
-            res.json(results);
-        }
-    );
+        );
+    });
 });
 
 router.post('/update/name', (req, res) => {

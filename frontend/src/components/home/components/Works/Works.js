@@ -13,7 +13,11 @@ const Works = ({ isAuth }) => {
     useEffect(() => {
         async function fetchWorks() {
             try {
-                const response = await fetch(`${process.env.REACT_APP_API_DOMAIN}/works/get`);
+                // 管理者のトークンがあれば送る（非公開の作品も受け取るため）
+                const token = localStorage.getItem('token')
+                const response = await fetch(`${process.env.REACT_APP_API_DOMAIN}/works/get`, {
+                    headers: token ? { 'Authorization': token } : {},
+                });
                 const data = await response.json();
                 setWorks(data);
                 console.log(data)
@@ -24,7 +28,9 @@ const Works = ({ isAuth }) => {
         fetchWorks();
     }, [])
 
-    const sortedWorks = works ? [...works].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.id - b.id) : []
+    // 非公開（is_published = 0）は管理者にだけ表示する
+    const visibleWorks = works ? works.filter((item) => isAuth || Number(item.is_published) !== 0) : []
+    const sortedWorks = [...visibleWorks].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.id - b.id)
     const featuredWorks = sortedWorks.filter((item) => Number(item.is_featured) === 1)
     const otherWorks = sortedWorks.filter((item) => Number(item.is_featured) !== 1)
     const worksByCategory = categories.map((category) => ({
@@ -111,7 +117,12 @@ const WorkCard = ({ item, size, isAuth, onOpen }) => {
             {...(isAuth ? {} : buttonProps)}
             className={`group flex flex-col overflow-hidden rounded-xl bg-white shadow-md hover:shadow-xl transition-shadow ${isAuth ? '' : 'cursor-pointer'} focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900`}
         >
-            <div {...(isAuth ? buttonProps : {})} className="aspect-video overflow-hidden cursor-pointer">
+            <div {...(isAuth ? buttonProps : {})} className="relative aspect-video overflow-hidden cursor-pointer">
+                {Number(item.is_published) === 0 && (
+                    <div className="absolute left-2 top-2 z-[1] rounded-md bg-gray-900/80 px-2 py-0.5 text-xs font-bold text-white">
+                        非公開
+                    </div>
+                )}
                 <img
                     src={`${process.env.REACT_APP_API_DOMAIN}/images/works/${item.id}/1_mid.jpg`} alt={item.id}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
