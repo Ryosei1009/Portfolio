@@ -34,6 +34,12 @@ app.use((req, res, next) => {
   }
 });
 
+// パスワードやトークンはログに残さない
+const SECRET_HEADERS = ['authorization', 'password', 'cookie', 'set-cookie'];
+const maskHeaders = (headers) => Object.fromEntries(
+  Object.entries(headers).map(([key, value]) => [key, SECRET_HEADERS.includes(key.toLowerCase()) ? '[省略]' : value])
+);
+
 app.use((req, res, next) => {
   const dateTime = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
   const shortLogFilePath = 'logs/short-log.txt';
@@ -47,7 +53,7 @@ app.use((req, res, next) => {
   Request Details:
   Method: ${req.method}
   URL: ${req.originalUrl}
-  Headers: ${JSON.stringify(req.headers)}
+  Headers: ${JSON.stringify(maskHeaders(req.headers))}
   Query Parameters: ${JSON.stringify(req.query)}
   Body: ${JSON.stringify(req.body)}
   Remote Address: ${req.ip}
@@ -55,8 +61,8 @@ app.use((req, res, next) => {
 
   Response:
   Status: ${res.statusCode}
-  Headers: ${JSON.stringify(res.getHeaders())}
-  Body: ${body}
+  Headers: ${JSON.stringify(maskHeaders(res.getHeaders()))}
+  Body: ${req.originalUrl.startsWith('/auth/') ? '[省略]' : body}
 ---------------------------------------------
 `;
     const shortLogMessage = `[${dateTime}] ${req.method} ${req.originalUrl} [${req.ip}]`;
@@ -90,8 +96,6 @@ app.post('/auth/check', (req, res) => {
 
 app.post('/auth/create', (req, res) => {
   const password = req.headers['password'];
-  console.log(password);
-  console.log(process.env.PASSWORD)
   if (password !== process.env.PASSWORD) return res.status(401).send('無許可');
 
   res.json({ token: jwt.sign({ id: 1 }, JWT_SECRET) });
