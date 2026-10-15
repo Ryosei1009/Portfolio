@@ -118,12 +118,20 @@ const WorkCard = ({ item, size, isAuth, onOpen }) => {
                     loading="lazy"
                 />
             </div>
-            <div className={isLarge ? 'px-4 py-5 text-xl max-md:text-lg' : 'px-2 py-3 text-base max-sm:text-sm'}>
+            <div className={`flex-1 flex flex-col ${isLarge ? 'px-4 py-5 text-xl max-md:text-lg' : 'px-2 py-3 text-base max-sm:text-sm'}`}>
                 {isAuth ? (
                     <WorkNameEditor item={item} />
                 ) : (
                     // name の1つ目の <p> はカテゴリ見出しなので小さく表示する
                     <div className="[&>p:first-child]:text-[0.75em] [&>p:first-child]:font-medium [&>p:first-child]:text-gray-500" dangerouslySetInnerHTML={{ __html: item.name }} />
+                )}
+                {item.highlight && (
+                    // カードの高さがそろうように下端に寄せる
+                    <div className={`mt-auto pt-3 flex justify-center ${isLarge ? 'text-sm' : 'text-xs'}`}>
+                        <div className={`rounded-lg bg-emerald-50 py-1 text-center text-balance font-medium text-emerald-800 ${isLarge ? 'px-3' : 'px-2'}`}>
+                            {item.highlight}
+                        </div>
+                    </div>
                 )}
             </div>
         </div>
