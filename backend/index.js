@@ -90,6 +90,9 @@ app.use('/works/', worksRouter);
 const settingsRouter = require('./routes/Settings');
 app.use('/settings/', settingsRouter);
 
+const achievementsRouter = require('./routes/Achievements');
+app.use('/achievements/', achievementsRouter);
+
 app.post('/auth/check', (req, res) => {
   const token = req.headers['authorization'];
 

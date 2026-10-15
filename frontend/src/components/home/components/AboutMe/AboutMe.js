@@ -6,12 +6,7 @@ import { markedText } from '../../../../utils/TextUtil'
 import { useAutoSave } from '../../../../utils/useAutoSave'
 import { EditButton, EditPanel, MarkdownField, TextField } from '../../../_utils/EditControls'
 import ImageUploadButton from '../../../_utils/ImageUploadButton'
-
-const achievements = [
-    { value: '6,000人', label: 'ゲームサーバーのコミュニティ規模（Discordメンバー）' },
-    { value: '約1,000万円', label: '寄付による累計売上（約63,000$）' },
-    { value: '40人→80人', label: '文化祭の運営メンバーを拡大（実行委員長）' },
-]
+import Achievements from './Achievements'
 
 // introduction を「### はじめに」の手前で「概要」と「詳細」に分ける
 // 見出しが無い場合は全文を概要として扱う
@@ -158,14 +153,7 @@ const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
                             {introductionPanel('introduction-top')}
 
                             {/* 実績 */}
-                            <div className="mt-6 grid grid-cols-3 max-md:grid-cols-1 gap-4">
-                                {achievements.map((item) => (
-                                    <div key={item.value} className="rounded-2xl border border-gray-200 border-t-4 border-t-main bg-white p-6 max-md:p-5 shadow-sm text-center">
-                                        <div className="text-4xl max-lg:text-3xl font-bold">{item.value}</div>
-                                        <div className="mt-2 text-sm text-gray-600">{item.label}</div>
-                                    </div>
-                                ))}
-                            </div>
+                            <Achievements isAuth={isAuth} />
 
                             {/* 経歴・スキル */}
                             <div className="mt-6 grid grid-cols-2 max-md:grid-cols-1 gap-4 max-md:text-sm">
