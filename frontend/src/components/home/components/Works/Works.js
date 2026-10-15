@@ -4,7 +4,7 @@ import CreateWorkModal from '../CreateWork/CreateWorkModal';
 import axios from 'axios';
 import { workImageAlt } from '../../../../utils/TextUtil';
 
-const Works = ({ isAuth }) => {
+const Works = ({ isAuth, onLoaded }) => {
     const [selectedWork, setSelectedWork] = useState(0);
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [createWorkModalIsOpen, setCreateWorkModalIsOpen] = useState(false);
@@ -24,6 +24,8 @@ const Works = ({ isAuth }) => {
                 console.log(data)
             } catch (error) {
                 console.error('Error fetching new item list:', error);
+            } finally {
+                onLoaded?.()
             }
         }
         fetchWorks();

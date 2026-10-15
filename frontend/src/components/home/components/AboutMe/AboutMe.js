@@ -22,7 +22,7 @@ const splitIntroduction = (introduction) => {
     }
 }
 
-const AboutMe = ({ isAuth }) => {
+const AboutMe = ({ isAuth, onLoaded }) => {
     const [iconOpen, setIconOpen] = useState(false)
     const [aboutMe, setAboutMe] = useState()
     const [detailOpen, setDetailOpen] = useState(false)
@@ -37,6 +37,8 @@ const AboutMe = ({ isAuth }) => {
                 console.log(data)
             } catch (error) {
                 console.error('Error fetching new item list:', error);
+            } finally {
+                onLoaded?.()
             }
         }
         fetchAboutMe();

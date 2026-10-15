@@ -10,6 +10,7 @@ function App() {
   const [isAuth, setIsAuth] = useState(false)
   useEffect(() => {
     const token = localStorage.getItem('token')
+    if (!token) return
     async function checkAuth() {
       try {
         const response = await fetch(`${process.env.REACT_APP_API_DOMAIN}/auth/check`, {
@@ -20,6 +21,9 @@ function App() {
         });
         if (response.ok) {
           setIsAuth(true)
+        } else if (response.status === 401) {
+          // 期限切れなどで使えないトークンは消しておく
+          localStorage.removeItem('token')
         }
       } catch (error) {
         console.error('Error checking auth:', error);
@@ -27,13 +31,18 @@ function App() {
     }
     checkAuth();
   }, [])
-  
+
+  const logout = () => {
+    localStorage.removeItem('token')
+    setIsAuth(false)
+  }
+
   return (
     <div>
-      <Header isAuth={isAuth} setIsAuth={setIsAuth} />
+      <Header isAuth={isAuth} onLogout={logout} />
       <Routes>
         <Route path="/" element={<Home isAuth={isAuth} />} />
-        <Route path="/auth" element={<Auth />} />
+        <Route path="/auth" element={<Auth isAuth={isAuth} setIsAuth={setIsAuth} onLogout={logout} />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Footer />

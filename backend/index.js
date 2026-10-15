@@ -98,7 +98,8 @@ app.post('/auth/create', (req, res) => {
   const password = req.headers['password'];
   if (password !== process.env.PASSWORD) return res.status(401).send('無許可');
 
-  res.json({ token: jwt.sign({ id: 1 }, JWT_SECRET) });
+  // 漏れても使い続けられないよう、トークンに有効期限を付ける
+  res.json({ token: jwt.sign({ id: 1 }, JWT_SECRET, { expiresIn: '30d' }) });
 });
 
 const db = mysql.createConnection({
