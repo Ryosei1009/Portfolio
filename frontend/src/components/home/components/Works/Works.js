@@ -31,7 +31,7 @@ const Works = ({ isAuth }) => {
 
     return (
         <>
-            <div id="works">
+            <div id="works" className="scroll-mt-16">
                 <div className="flex justify-center">
                     <div className="max-w-5xl mx-16 max-xl:mx-8 max-lg:mx-4 w-full">
                         <div className="text-5xl max-sm:text-4xl font-bold mb-4 max-md:mb-0 flex justify-between items-end">

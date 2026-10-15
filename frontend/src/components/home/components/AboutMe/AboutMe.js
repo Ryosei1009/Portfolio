@@ -25,7 +25,7 @@ const AboutMe = ({ isAuth }) => {
 
     return (
         <>
-            <div id="aboutme" className="flex justify-center my-24">
+            <div id="about" className="flex justify-center my-24 scroll-mt-16">
                 <div className="text-black max-w-5xl mx-16 max-xl:mx-8 max-lg:mx-4 flex flex-col justify-center">
                     <div className="text-5xl max-sm:text-4xl font-bold mb-4 max-md:mb-0">
                         About Me<span className="ml-4 text-xl">自己紹介</span>
