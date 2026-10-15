@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import axios from 'axios';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 import EachWork from './EachWork';
@@ -11,13 +11,6 @@ import { useAutoSave } from '../../../../utils/useAutoSave';
 // 並び順として保存する値（id と sort_order だけ）
 const toOrder = (works) => works?.map((item) => ({ id: item.id, sort_order: item.sort_order ?? 0 }))
 
-const saveOrder = (orders) => (
-    axios.post(`${process.env.REACT_APP_API_DOMAIN}/works/update/order`, { orders }, {
-        headers: {
-            'Authorization': localStorage.getItem('token')
-        }
-    })
-)
 
 const Works = ({ isAuth, onLoaded }) => {
     const [selectedWork, setSelectedWork] = useState(0);
@@ -30,6 +23,18 @@ const Works = ({ isAuth, onLoaded }) => {
 
     // 並び替え（管理者のみ）。読み込んだ並び順は保存済みとして扱う
     const order = useMemo(() => toOrder(works), [works])
+    // DB に保存済みの並び順（id → sort_order）。変わった作品の分だけを送るために使う
+    const savedOrder = useRef(new Map())
+    const saveOrder = async (orders) => {
+        const changed = orders.filter((item) => savedOrder.current.get(item.id) !== item.sort_order)
+        if (changed.length === 0) return
+        await axios.post(`${process.env.REACT_APP_API_DOMAIN}/works/update/order`, { orders: changed }, {
+            headers: {
+                'Authorization': localStorage.getItem('token')
+            }
+        })
+        changed.forEach((item) => savedOrder.current.set(item.id, item.sort_order))
+    }
     const { reset: resetOrder } = useAutoSave(order, saveOrder)
 
     useEffect(() => {
@@ -41,6 +46,7 @@ const Works = ({ isAuth, onLoaded }) => {
                     headers: token ? { 'Authorization': token } : {},
                 });
                 const data = await response.json();
+                savedOrder.current = new Map(toOrder(data).map((item) => [item.id, item.sort_order]));
                 resetOrder(toOrder(data));
                 setWorks(data);
                 console.log(data)
@@ -67,13 +73,22 @@ const Works = ({ isAuth, onLoaded }) => {
     const orderedWorks = [...featuredWorks, ...worksByCategory.flatMap(({ items }) => items)]
     const settingsWork = works?.find((item) => item.id === settingsWorkId)
 
-    // 同じ欄（代表作・カテゴリ）の中で、隣の作品と入れ替えて番号を振り直す
+    // 同じ欄（代表作・カテゴリ）の中で、隣の作品と入れ替える
+    // 欄の中の番号に重なりが無ければ2作品の番号を入れ替えるだけにし、重なりがあるときだけ欄の番号を振り直す
     const moveWork = (group, index, delta) => {
         const target = index + delta
         if (target < 0 || target >= group.length) return
-        const reordered = [...group]
-        ;[reordered[index], reordered[target]] = [reordered[target], reordered[index]]
-        const newOrder = new Map(reordered.map((item, i) => [item.id, i + 1]))
+        const current = group[index]
+        const neighbor = group[target]
+        const hasTies = new Set(group.map((item) => item.sort_order)).size !== group.length
+        let newOrder
+        if (hasTies) {
+            const reordered = [...group]
+            ;[reordered[index], reordered[target]] = [reordered[target], reordered[index]]
+            newOrder = new Map(reordered.map((item, i) => [item.id, i + 1]))
+        } else {
+            newOrder = new Map([[current.id, neighbor.sort_order], [neighbor.id, current.sort_order]])
+        }
         setWorks((prev) => prev.map((item) => (newOrder.has(item.id) ? { ...item, sort_order: newOrder.get(item.id) } : item)))
     }
 
