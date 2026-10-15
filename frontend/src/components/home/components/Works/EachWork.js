@@ -3,7 +3,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import ImageModal from './ImageModal';
 import EditEachWork from './EditEachWork';
 
-const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, works, isAuth, setWorks }) => {
+const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, works, orderedWorks, isAuth, setWorks }) => {
     const [selectedImage, setSelectedImage] = useState(1);
     const [isOpen, setIsOpen] = useState(false)
     const handleClose = () => {
@@ -14,13 +14,17 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, 
     }
 
     useEffect(() => {
-        if (modalIsOpen && !isAuth) {
+        // 画像拡大中は作品を切り替えない
+        if (modalIsOpen && !isAuth && !isOpen) {
             const handleKeyDown = (event) => {
+                // id ではなく画面の並び順で前後の作品を探す
+                const index = orderedWorks.findIndex((item) => item.id === selectedWork.id)
+                if (index === -1) return
                 if (event.key === "ArrowRight") {
-                    selectedWork.id !== works.length && setSelectedWork(works[parseInt(selectedWork.id)])
+                    index < orderedWorks.length - 1 && setSelectedWork(orderedWorks[index + 1])
                 }
                 if (event.key === "ArrowLeft") {
-                    selectedWork.id - 1 !== 0 && setSelectedWork(works[parseInt(selectedWork.id) - 2])
+                    index > 0 && setSelectedWork(orderedWorks[index - 1])
                 }
             };
 
@@ -30,7 +34,7 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, 
                 window.removeEventListener("keydown", handleKeyDown);
             };
         }
-    }, [selectedWork, setSelectedWork, works, modalIsOpen, isAuth]);
+    }, [selectedWork, setSelectedWork, orderedWorks, modalIsOpen, isAuth, isOpen]);
 
     const getDevicesNumber = () => {
         switch (selectedImage) {

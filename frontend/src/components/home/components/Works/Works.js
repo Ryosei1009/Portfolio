@@ -24,6 +24,9 @@ const Works = ({ isAuth }) => {
         fetchWorks();
     }, [])
 
+    // 画面に並んでいる順（詳細モーダルの ← → 移動で使う）
+    const orderedWorks = works ? categories.flatMap((category) => works.filter((item) => item.category === category)) : []
+
     const handleModal = (work) => {
         setSelectedWork(work);
         setModalIsOpen(true)
@@ -71,7 +74,7 @@ const Works = ({ isAuth }) => {
                     </>
                 ))}
             </div>
-            <EachWork modalIsOpen={modalIsOpen} setModalIsOpen={setModalIsOpen} selectedWork={selectedWork} setSelectedWork={setSelectedWork} works={works} isAuth={isAuth} setWorks={setWorks} />
+            <EachWork modalIsOpen={modalIsOpen} setModalIsOpen={setModalIsOpen} selectedWork={selectedWork} setSelectedWork={setSelectedWork} works={works} orderedWorks={orderedWorks} isAuth={isAuth} setWorks={setWorks} />
             <CreateWorkModal createWorkModalIsOpen={createWorkModalIsOpen} setCreateWorkModalIsOpen={setCreateWorkModalIsOpen} />
         </>
     )
