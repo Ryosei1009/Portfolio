@@ -4,6 +4,7 @@ import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from '@heroicons/react/24
 import EachWork from './EachWork';
 import CreateWorkModal from '../CreateWork/CreateWorkModal';
 import { workImageAlt } from '../../../../utils/TextUtil';
+import { showFallbackImage, workImageUrl } from './workImage';
 import WorkSettingsDialog from './WorkSettingsDialog';
 import { EditButton } from '../../../_utils/EditControls';
 import { useAutoSave } from '../../../../utils/useAutoSave';
@@ -16,6 +17,9 @@ const Works = ({ isAuth, onLoaded }) => {
     const [selectedWork, setSelectedWork] = useState(0);
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [createWorkModalIsOpen, setCreateWorkModalIsOpen] = useState(false);
+    // 画像を差し替えた作品の id → 差し替えた時刻（画像の URL に付けて、新しい画像を表示させる）
+    const [imageVersions, setImageVersions] = useState({});
+    const handleImageUploaded = (id) => setImageVersions((prev) => ({ ...prev, [id]: Date.now() }));
     // 設定を編集している作品の id
     const [settingsWorkId, setSettingsWorkId] = useState(null);
     const [works, setWorks] = useState()
@@ -139,7 +143,7 @@ const Works = ({ isAuth, onLoaded }) => {
                                 </div>
                                 <div className="mt-6 grid grid-cols-3 max-md:grid-cols-1 gap-6 text-black font-bold">
                                     {featuredWorks.map((item, index) => (
-                                        <WorkCard key={item.id} item={item} size="large" isAuth={isAuth} onOpen={handleModal} onOpenSettings={setSettingsWorkId} onMove={(delta) => moveWork(featuredWorks, index, delta)} isFirst={index === 0} isLast={index === featuredWorks.length - 1} />
+                                        <WorkCard key={item.id} item={item} imageVersion={imageVersions[item.id]} size="large" isAuth={isAuth} onOpen={handleModal} onOpenSettings={setSettingsWorkId} onMove={(delta) => moveWork(featuredWorks, index, delta)} isFirst={index === 0} isLast={index === featuredWorks.length - 1} />
                                     ))}
                                 </div>
                             </>
@@ -155,7 +159,7 @@ const Works = ({ isAuth, onLoaded }) => {
                                 </div>
                                 <div className="mt-6 grid grid-cols-4 max-lg:grid-cols-3 max-md:grid-cols-2 gap-4 max-sm:gap-3 text-black font-bold">
                                     {items.map((item, index) => (
-                                        <WorkCard key={item.id} item={item} size="small" isAuth={isAuth} onOpen={handleModal} onOpenSettings={setSettingsWorkId} onMove={(delta) => moveWork(items, index, delta)} isFirst={index === 0} isLast={index === items.length - 1} />
+                                        <WorkCard key={item.id} item={item} imageVersion={imageVersions[item.id]} size="small" isAuth={isAuth} onOpen={handleModal} onOpenSettings={setSettingsWorkId} onMove={(delta) => moveWork(items, index, delta)} isFirst={index === 0} isLast={index === items.length - 1} />
                                     ))}
                                 </div>
                             </React.Fragment>
@@ -163,7 +167,7 @@ const Works = ({ isAuth, onLoaded }) => {
                     </div>
                 </div>
             </div>
-            <EachWork modalIsOpen={modalIsOpen} setModalIsOpen={setModalIsOpen} selectedWork={selectedWork} setSelectedWork={setSelectedWork} orderedWorks={orderedWorks} isAuth={isAuth} setWorks={setWorks} />
+            <EachWork modalIsOpen={modalIsOpen} setModalIsOpen={setModalIsOpen} selectedWork={selectedWork} setSelectedWork={setSelectedWork} orderedWorks={orderedWorks} isAuth={isAuth} setWorks={setWorks} imageVersions={imageVersions} onImageUploaded={handleImageUploaded} />
             {isAuth && (
                 <CreateWorkModal isOpen={createWorkModalIsOpen} onClose={() => setCreateWorkModalIsOpen(false)} categories={categories} onCreated={handleCreated} />
             )}
@@ -176,7 +180,7 @@ const Works = ({ isAuth, onLoaded }) => {
 
 export default Works
 
-const WorkCard = ({ item, size, isAuth, onOpen, onOpenSettings, onMove, isFirst, isLast }) => {
+const WorkCard = ({ item, imageVersion, size, isAuth, onOpen, onOpenSettings, onMove, isFirst, isLast }) => {
     const isLarge = size === 'large'
     const handleKeyDown = (event) => {
         if (event.key === 'Enter' || event.key === ' ') {
@@ -199,8 +203,8 @@ const WorkCard = ({ item, size, isAuth, onOpen, onOpenSettings, onMove, isFirst,
                     </div>
                 )}
                 <img
-                    src={`${process.env.REACT_APP_API_DOMAIN}/images/works/${item.id}/1_mid.jpg`} alt={workImageAlt(item, 1)}
-                    onError={(event) => { event.target.onerror = null; event.target.src = '/images/works/error.jpg' }}
+                    src={workImageUrl(item.id, '1_mid.jpg', imageVersion)} alt={workImageAlt(item, 1)}
+                    onError={showFallbackImage}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
                 />

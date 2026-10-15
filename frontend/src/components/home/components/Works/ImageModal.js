@@ -1,59 +1,9 @@
 import { Dialog, Transition } from '@headlessui/react'
-import React, { Fragment, useRef, useState } from 'react'
-import axios from 'axios'
+import React, { Fragment } from 'react'
 import { workImageAlt } from '../../../../utils/TextUtil'
+import { showFallbackImage, workImageUrl } from './workImage'
 
-const ImageModal = ({ isOpen, setIsOpen, selectedImage, selectedWork, isAuth }) => {
-    const fileInputRef = useRef(null)
-    const [previewUrl, setPreviewUrl] = useState();
-    const [isNotImage, setIsNotImage] = useState(false);
-
-    const handleFileChange = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            if (!file.type.startsWith('image/')) {
-                setIsNotImage(true);
-                return;
-            };
-            setIsNotImage(false);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const img = new window.Image();
-
-                img.src = reader.result;
-
-                img.onload = () => {
-                    setPreviewUrl(reader.result);
-                    updateWorkImage(file);
-                };
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-
-    const updateWorkImage = async (image) => {
-        if (!selectedWork?.id || !selectedImage) {
-            console.error("選択されたワークや画像が正しく設定されていません");
-            return;
-        }
-        const formData = new FormData();
-        formData.append('image', image);
-        formData.append('id', selectedWork.id);
-        formData.append('image_id', selectedImage);
-
-        try {
-            await axios.post(`${process.env.REACT_APP_API_DOMAIN}/works/update_image`, formData, {
-                headers: {
-                    'Authorization': localStorage.getItem('token')
-                },
-            });
-        } catch (error) {
-            console.error('画像アップロード失敗:', error);
-        }
-    };
-
-
-
+const ImageModal = ({ isOpen, setIsOpen, selectedImage, selectedWork, imageVersion }) => {
     return (
         <Transition appear show={isOpen} as={Fragment}>
             <Dialog as="div" className="relative z-20" onClose={() => setIsOpen(false)}>
@@ -82,7 +32,7 @@ const ImageModal = ({ isOpen, setIsOpen, selectedImage, selectedWork, isAuth }) 
                             {(selectedWork.id === 4 && selectedImage === 2) || (selectedWork.id === 16 && selectedImage === 5) ? (
                                 <video
                                     className="w-full h-auto max-h-screen bg-white object-contain"
-                                    src={`${previewUrl ? previewUrl : `${process.env.REACT_APP_API_DOMAIN}/images/works/${selectedWork.id}/${selectedImage}.mp4`}`}
+                                    src={workImageUrl(selectedWork.id, `${selectedImage}.mp4`)}
                                     aria-label={`${workImageAlt(selectedWork, selectedImage)}（動画）`}
                                     controls
                                     autoPlay
@@ -91,18 +41,10 @@ const ImageModal = ({ isOpen, setIsOpen, selectedImage, selectedWork, isAuth }) 
                             ) : (
                                 <img
                                     className="w-full h-auto max-h-screen bg-white object-contain"
-                                    src={`${previewUrl ? previewUrl : `${process.env.REACT_APP_API_DOMAIN}/images/works/${selectedWork.id}/${selectedImage}.jpg`}`}
+                                    src={workImageUrl(selectedWork.id, `${selectedImage}.jpg`, imageVersion)}
                                     alt={workImageAlt(selectedWork, selectedImage)}
+                                    onError={showFallbackImage}
                                 />
-                            )}
-                            {isAuth && (
-                                <>
-                                    <span className="bg-green-500 text-white text-center mt-2 px-6 py-2 rounded-lg cursor-pointer" onClick={() => fileInputRef.current.click()}>
-                                        画像更新
-                                    </span>
-                                    {isNotImage && <div className="text-red-500 mb-1">画像を選択してください。</div>}
-                                    <input accept="image/jpg" type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
-                                </>
                             )}
                         </Dialog.Panel>
                     </Transition.Child>

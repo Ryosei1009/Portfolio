@@ -1,4 +1,5 @@
-import React, { useEffect, useId, useState } from 'react'
+import React, { useEffect, useId, useRef, useState } from 'react'
+import { PhotoIcon } from '@heroicons/react/24/solid'
 import axios from 'axios'
 import { useAutoSave } from '../../../../utils/useAutoSave'
 import SaveStatus from '../../../_utils/SaveStatus'
@@ -77,8 +78,67 @@ const LinkFields = ({ form, update }) => {
     )
 }
 
+const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024
+
+// 選んでいる画像（1〜5枚目）を差し替える。原寸・一覧用・サムネイルの3サイズはサーバーで作る
+const ImageUploader = ({ workId, imageNumber, onUploaded }) => {
+    const inputRef = useRef(null)
+    const [state, setState] = useState({ status: 'idle', message: '' })
+
+    const handleChange = async (event) => {
+        const file = event.target.files?.[0]
+        event.target.value = ''
+        if (!file) return
+        if (!IMAGE_TYPES.includes(file.type)) {
+            setState({ status: 'error', message: 'JPEG・PNG・WebP の画像を選んでください。' })
+            return
+        }
+        if (file.size > MAX_IMAGE_SIZE) {
+            setState({ status: 'error', message: '画像は10MBまでにしてください。' })
+            return
+        }
+        const formData = new FormData()
+        formData.append('image', file)
+        formData.append('id', workId)
+        formData.append('image_id', imageNumber)
+        setState({ status: 'uploading', message: 'アップロード中…' })
+        try {
+            await axios.post(`${process.env.REACT_APP_API_DOMAIN}/works/update_image`, formData, {
+                headers: {
+                    'Authorization': localStorage.getItem('token')
+                },
+            })
+            setState({ status: 'done', message: `画像${DEVICE_NUMBERS[imageNumber - 1]}を変更しました` })
+            onUploaded()
+        } catch (error) {
+            console.error('画像のアップロードに失敗しました:', error)
+            const message = typeof error.response?.data === 'string' ? error.response.data : 'アップロードできませんでした。時間をおいてもう一度お試しください。'
+            setState({ status: 'error', message })
+        }
+    }
+
+    return (
+        <div className="mt-4 flex flex-col items-center gap-1 text-center">
+            <button
+                type="button"
+                onClick={() => inputRef.current?.click()}
+                disabled={state.status === 'uploading'}
+                className="inline-flex items-center gap-1 rounded-full border border-gray-300 bg-white px-3 py-1 text-xs font-bold text-gray-700 shadow-sm hover:bg-gray-100 disabled:opacity-50"
+            >
+                <PhotoIcon className="h-4 w-4" aria-hidden="true" />
+                画像{DEVICE_NUMBERS[imageNumber - 1]}を変更
+            </button>
+            <input ref={inputRef} type="file" accept={IMAGE_TYPES.join(',')} onChange={handleChange} className="hidden" aria-label={`画像${imageNumber}を選ぶ`} />
+            <p role="status" aria-live="polite" className={`min-h-[1rem] text-xs ${state.status === 'error' ? 'text-red-600' : 'text-gray-500'}`}>
+                {state.message || '横長（16:9）の画像がおすすめです。JPEG・PNG・WebP、10MBまで。'}
+            </p>
+        </div>
+    )
+}
+
 // 管理者用の作品詳細。公開画面と同じレイアウトに、各ブロックの編集ボタンと編集欄を足す
-const WorkDetailEditor = ({ work, selectedImage, setSelectedImage, onZoom, setWorks }) => {
+const WorkDetailEditor = ({ work, selectedImage, setSelectedImage, onZoom, setWorks, imageVersion, onImageUploaded }) => {
     const [form, setForm] = useState(() => pickDetail(work))
     const [editing, setEditing] = useState(null)
     const [isTitleHtml, setIsTitleHtml] = useState(() => parseCardTitle(work.each_name) === null)
@@ -152,6 +212,8 @@ const WorkDetailEditor = ({ work, selectedImage, setSelectedImage, onZoom, setWo
                 selectedImage={selectedImage}
                 setSelectedImage={setSelectedImage}
                 onZoom={onZoom}
+                imageVersion={imageVersion}
+                imageSlot={<ImageUploader key={image} workId={work.id} imageNumber={image} onUploaded={onImageUploaded} />}
                 editButton={(key) => (
                     <EditButton isOpen={editing === key} onClick={() => setEditing((prev) => (prev === key ? null : key))} className={key === 'title' ? 'mb-2' : 'shrink-0'} />
                 )}

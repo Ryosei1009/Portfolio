@@ -4,7 +4,7 @@ import ImageModal from './ImageModal';
 import WorkDetailBody from './WorkDetailBody';
 import WorkDetailEditor from './WorkDetailEditor';
 
-const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, orderedWorks, isAuth, setWorks }) => {
+const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, orderedWorks, isAuth, setWorks, imageVersions, onImageUploaded }) => {
     const [selectedImage, setSelectedImage] = useState(1);
     const [isOpen, setIsOpen] = useState(false)
     const handleClose = () => {
@@ -38,6 +38,7 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, 
     }, [selectedWork, setSelectedWork, orderedWorks, modalIsOpen, isAuth, isOpen]);
 
     const zoom = () => setIsOpen(true)
+    const imageVersion = imageVersions?.[selectedWork?.id]
 
     return (
         <Transition appear show={modalIsOpen} as={Fragment}>
@@ -70,9 +71,9 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, 
                                     <Dialog.Panel className="relative scroll-hidden px-10 max-lg:px-4 py-12 max-lg:py-5 overflow-y-auto max-h-[80vh] flex flex-col items-center">
                                         {isAuth ? (
                                             // 作品ごとに作り直して、前の作品の未保存分は閉じるときに保存する
-                                            <WorkDetailEditor key={selectedWork.id} work={selectedWork} selectedImage={selectedImage} setSelectedImage={setSelectedImage} onZoom={zoom} setWorks={setWorks} />
+                                            <WorkDetailEditor key={selectedWork.id} work={selectedWork} selectedImage={selectedImage} setSelectedImage={setSelectedImage} onZoom={zoom} setWorks={setWorks} imageVersion={imageVersion} onImageUploaded={() => onImageUploaded(selectedWork.id)} />
                                         ) : (
-                                            <WorkDetailBody work={selectedWork} selectedImage={selectedImage} setSelectedImage={setSelectedImage} onZoom={zoom} />
+                                            <WorkDetailBody work={selectedWork} selectedImage={selectedImage} setSelectedImage={setSelectedImage} onZoom={zoom} imageVersion={imageVersion} />
                                         )}
                                     </Dialog.Panel>
                                 </div>
@@ -80,7 +81,7 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, 
                         </Transition.Child>
                     </div>
                 </div>
-                <ImageModal isOpen={isOpen} setIsOpen={setIsOpen} selectedImage={selectedImage} selectedWork={selectedWork} setSelectedImage={setSelectedImage} isAuth={isAuth} />
+                <ImageModal isOpen={isOpen} setIsOpen={setIsOpen} selectedImage={selectedImage} selectedWork={selectedWork} imageVersion={imageVersion} />
             </Dialog >
         </Transition >
     )

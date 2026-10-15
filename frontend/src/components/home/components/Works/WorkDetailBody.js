@@ -1,12 +1,14 @@
 import React from 'react'
 import { workImageAlt } from '../../../../utils/TextUtil'
+import { showFallbackImage, workImageUrl } from './workImage'
 
 const DEVICE_NUMBERS = ['①', '②', '③', '④', '⑤']
 
 // 作品詳細の中身（公開画面と管理者画面で同じレイアウトを使う）
 // editButton(key) / editPanel(key) を渡すと、各ブロックに編集ボタンと編集欄を出す
+// imageSlot を渡すと、サムネイルの下に出す（管理者の画像の差し替えなど）
 // key: 'title' | 'link' | 'purpose' | 'outlook' | 'device'
-const WorkDetailBody = ({ work, selectedImage, setSelectedImage, onZoom, editButton = () => null, editPanel = () => null }) => {
+const WorkDetailBody = ({ work, selectedImage, setSelectedImage, onZoom, imageVersion, imageSlot = null, editButton = () => null, editPanel = () => null }) => {
     const image = selectedImage || 1
     const device = work[`device_${image}`] || work.device_1
 
@@ -33,13 +35,14 @@ const WorkDetailBody = ({ work, selectedImage, setSelectedImage, onZoom, editBut
             <div className="flex max-lg:flex-col mt-8 max-lg:mt-4 items-center w-full">
                 <div className="flex flex-col items-center w-11/24 max-lg:w-full mr-4 max-xl:mr-4 max-lg:mr-0">
                     <img onClick={onZoom} className="w-45/48 cursor-pointer hover:opacity-80"
-                        src={`${process.env.REACT_APP_API_DOMAIN}/images/works/${work.id}/${image}.jpg`}
-                        alt={workImageAlt(work, image)} loading="lazy" onError={(event) => event.target.src = "/images/works/error.jpg"} />
+                        src={workImageUrl(work.id, `${image}.jpg`, imageVersion)}
+                        alt={workImageAlt(work, image)} loading="lazy" onError={showFallbackImage} />
                     <div className="mt-6 max-md:mt-4 px-2 flex justify-between">
                         {[1, 2, 3, 4, 5].map((item) => (
-                            <img key={item} onClick={() => setSelectedImage(item)} className="w-1/6 h-161 cursor-pointer hover:opacity-80 hover:scale-110" src={`${process.env.REACT_APP_API_DOMAIN}/images/works/${work.id}/${item}_small.jpg`} alt={workImageAlt(work, item)} loading="lazy" onError={(event) => event.target.src = "/images/works/error.jpg"} />
+                            <img key={item} onClick={() => setSelectedImage(item)} className="w-1/6 h-161 cursor-pointer hover:opacity-80 hover:scale-110" src={workImageUrl(work.id, `${item}_small.jpg`, imageVersion)} alt={workImageAlt(work, item)} loading="lazy" onError={showFallbackImage} />
                         ))}
                     </div>
+                    {imageSlot}
                 </div>
                 <div className="h-full w-13/24 max-lg:w-full text-start max-lg:border-t-2 mt-4">
                     <div className="flex flex-col text-sm max-xl:text-xs max-lg:h-full overflow-y-scroll h-96 scroll-hidden">
