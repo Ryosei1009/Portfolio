@@ -13,7 +13,7 @@ const db = mysql.createConnection({
 
 router.get('/get', (req, res) => {
     db.query(
-        'SELECT * FROM works',
+        'SELECT * FROM works ORDER BY is_featured DESC, sort_order, id',
         (err, results) => {
             if (err) {
                 console.error(err);
