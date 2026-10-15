@@ -3,6 +3,8 @@ import EachWork from './EachWork';
 import CreateWorkModal from '../CreateWork/CreateWorkModal';
 import axios from 'axios';
 import { workImageAlt } from '../../../../utils/TextUtil';
+import { useAutoSave } from '../../../../utils/useAutoSave';
+import SaveStatus from '../../../_utils/SaveStatus';
 
 const Works = ({ isAuth, onLoaded }) => {
     const [selectedWork, setSelectedWork] = useState(0);
@@ -164,22 +166,13 @@ const WorkNameEditor = ({ item }) => {
         setFormData(prev => ({ ...prev, [event.target.name]: event.target.value }));
     };
 
-    useEffect(() => {
-        const updateName = async () => {
-            try {
-                await axios.post(`${process.env.REACT_APP_API_DOMAIN}/works/update/name`, formData, {
-                    headers: {
-                        'Authorization': localStorage.getItem('token')
-                    }
-                });
-            } catch (error) {
-                console.error('Error uploading data:', error);
+    const { status, flush } = useAutoSave(formData, (data) => (
+        axios.post(`${process.env.REACT_APP_API_DOMAIN}/works/update/name`, data, {
+            headers: {
+                'Authorization': localStorage.getItem('token')
             }
-        };
-        if (Object.keys(formData).length > 0) {
-            updateName();
-        }
-    }, [formData]);
+        })
+    ));
 
     return (
         <>
@@ -203,6 +196,7 @@ const WorkNameEditor = ({ item }) => {
                     }, 1)
                 }}
             />
+            <SaveStatus status={status} onRetry={flush} className="mt-1 text-center" />
         </>
 
     )

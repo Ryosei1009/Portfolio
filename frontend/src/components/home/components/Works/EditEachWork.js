@@ -5,6 +5,8 @@ import ImageModal from './ImageModal'
 import axios from 'axios'
 import UrlEditModal from '../../../_utils/UrlEditModal'
 import { workImageAlt } from '../../../../utils/TextUtil'
+import { useAutoSave } from '../../../../utils/useAutoSave'
+import SaveStatus from '../../../_utils/SaveStatus'
 
 const EditEachWork = ({ selectedWork, selectedImage, getDevicesNumber, setSelectedImage, setIsOpen, isOpen, handleClose, modalIsOpen, setWorks, works }) => {
     const [isEdit, setIsEdit] = useState(false)
@@ -42,66 +44,53 @@ const EditEachWork = ({ selectedWork, selectedImage, getDevicesNumber, setSelect
         textarea.style.height = textarea.scrollHeight + 'px';
     };
 
-    const [formData, setFormData] = useState({
-        id: selectedWork.id,
-        each_name: selectedWork.each_name,
-        url: selectedWork.url,
-        url_name: selectedWork.url_name,
-        purpose: selectedWork.purpose,
-        outlook: selectedWork.outlook,
-        device_1: selectedWork.device_1,
-        device_2: selectedWork.device_2,
-        device_3: selectedWork.device_3,
-        device_4: selectedWork.device_4,
-        device_5: selectedWork.device_5,
+    const toFormData = (work) => ({
+        id: work.id,
+        each_name: work.each_name,
+        url: work.url,
+        url_name: work.url_name,
+        purpose: work.purpose,
+        outlook: work.outlook,
+        device_1: work.device_1,
+        device_2: work.device_2,
+        device_3: work.device_3,
+        device_4: work.device_4,
+        device_5: work.device_5,
     })
 
+    const [formData, setFormData] = useState(toFormData(selectedWork))
+
+    const { status, flush, reset } = useAutoSave(formData, (data) => (
+        axios.post(`${process.env.REACT_APP_API_DOMAIN}/works/update`, data, {
+            headers: {
+                'Authorization': localStorage.getItem('token')
+            }
+        })
+    ));
+
+    // 別の作品を開いたら、前の作品の未保存分を保存してから切り替える
     useEffect(() => {
-        if (selectedWork) {
-            setFormData({
-                id: selectedWork.id,
-                each_name: selectedWork.each_name,
-                url: selectedWork.url,
-                url_name: selectedWork.url_name,
-                purpose: selectedWork.purpose,
-                outlook: selectedWork.outlook,
-                device_1: selectedWork.device_1,
-                device_2: selectedWork.device_2,
-                device_3: selectedWork.device_3,
-                device_4: selectedWork.device_4,
-                device_5: selectedWork.device_5,
-            });
-        }
+        if (!selectedWork) return
+        flush()
+        const next = toFormData(selectedWork)
+        reset(next)
+        setFormData(next)
     }, [selectedWork]);
 
     const handleChange = (event) => {
         setFormData(prev => ({ ...prev, [event.target.name]: event.target.value }));
     };
 
+    // 一覧の表示にも編集中の内容を反映する
     useEffect(() => {
-        setWorks((prevWorks) => 
+        if (!formData.id) return
+        setWorks((prevWorks) =>
             prevWorks?.map((work) =>
                 work.id === formData.id
                     ? { ...work, ...formData }
                     : work
             )
         );
-        
-        const updateWork = async () => {
-            try {
-                await axios.post(`${process.env.REACT_APP_API_DOMAIN}/works/update`, formData, {
-                    headers: {
-                        'Authorization': localStorage.getItem('token')
-                    }
-                });
-            } catch (error) {
-                console.error('Error uploading data:', error);
-            }
-        };
-
-        if (Object.keys(formData).length > 0) {
-            updateWork();
-        }
     }, [formData, setWorks]);
 
     return (
@@ -134,6 +123,7 @@ const EditEachWork = ({ selectedWork, selectedImage, getDevicesNumber, setSelect
                                     <div className="relative rounded-xl border-8 border-main">
                                         <div className="absolute inset-0 bg-white rounded-md"></div>
                                         <Dialog.Panel className="relative scroll-hidden px-10 max-lg:px-4 py-12 max-lg:py-5 overflow-y-auto max-h-[80vh] flex flex-col items-center">
+                                            <SaveStatus status={status} onRetry={flush} className="self-end -mt-8 max-lg:-mt-2 mb-2" />
                                             <div className="text-5xl max-2xl:text-4xl max-xl:text-3xl max-lg:text-2xl max-md:text-xl font-bold mb-2">
                                                 <div
                                                     className={`${isEachNameMarkedText ? "block" : "hidden"} ml-2`}

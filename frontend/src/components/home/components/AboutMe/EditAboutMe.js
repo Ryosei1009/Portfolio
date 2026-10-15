@@ -1,8 +1,10 @@
 import { EnvelopeIcon } from '@heroicons/react/24/solid'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { markedText } from '../../../../utils/TextUtil'
 import axios from 'axios'
 import UrlEditModal from '../../../_utils/UrlEditModal'
+import { useAutoSave } from '../../../../utils/useAutoSave'
+import SaveStatus from '../../../_utils/SaveStatus'
 
 const EditAboutMe = ({ aboutMe, setIconOpen }) => {
     const [isEdit, setIsEdit] = useState(false)
@@ -49,27 +51,18 @@ const EditAboutMe = ({ aboutMe, setIconOpen }) => {
         setFormData(prev => ({ ...prev, [event.target.name]: event.target.value }));
     };
 
-    useEffect(() => {
-        const updateAboutMe = async () => {
-            try {
-                await axios.post(`${process.env.REACT_APP_API_DOMAIN}/aboutme/update`, formData, {
-                    headers: {
-                        'Authorization': localStorage.getItem('token')
-                    }
-                });
-            } catch (error) {
-                console.error('Error uploading data:', error);
+    const { status, flush } = useAutoSave(formData, (data) => (
+        axios.post(`${process.env.REACT_APP_API_DOMAIN}/aboutme/update`, data, {
+            headers: {
+                'Authorization': localStorage.getItem('token')
             }
-        };
-
-        if (Object.keys(formData).length > 0) {
-            updateAboutMe();
-        }
-    }, [formData]);
+        })
+    ));
 
 
     return (
         <>
+            <SaveStatus status={status} onRetry={flush} className="mt-2 text-right" />
             <div className="flex items-center justify-center my-4 max-md:my-2">
                 <img loading="lazy" onClick={() => setIconOpen(true)} src={formData.image} alt={`${formData.name}のプロフィール写真`} className="w-1/6 max-md:w-1/5 max-sm:w-1/4 border-white border-2 rounded-full cursor-pointer hover:opacity-80" />
                 <div className="ml-8 w-2/3 max-sm:w-3/4">
