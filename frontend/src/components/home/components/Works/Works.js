@@ -129,7 +129,7 @@ const Works = ({ isAuth, onLoaded }) => {
                     </div>
                 </div>
             </div>
-            <EachWork modalIsOpen={modalIsOpen} setModalIsOpen={setModalIsOpen} selectedWork={selectedWork} setSelectedWork={setSelectedWork} works={works} orderedWorks={orderedWorks} isAuth={isAuth} setWorks={setWorks} />
+            <EachWork modalIsOpen={modalIsOpen} setModalIsOpen={setModalIsOpen} selectedWork={selectedWork} setSelectedWork={setSelectedWork} orderedWorks={orderedWorks} isAuth={isAuth} setWorks={setWorks} />
             <CreateWorkModal createWorkModalIsOpen={createWorkModalIsOpen} setCreateWorkModalIsOpen={setCreateWorkModalIsOpen} />
             {isAuth && settingsWork && (
                 <WorkSettingsDialog key={settingsWork.id} work={settingsWork} categories={categories} setWorks={setWorks} onClose={() => setSettingsWorkId(null)} />

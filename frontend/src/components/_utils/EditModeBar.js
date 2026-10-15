@@ -22,7 +22,8 @@ const EditModeBar = ({ isPreview, setIsPreview, onLogout }) => {
     const summary = useSaveSummary()
 
     return (
-        <div className="fixed bottom-4 inset-x-0 z-30 flex justify-center px-4 pointer-events-none">
+        // 作品詳細などのダイアログ（z-10 以上）の後ろに回り、ダイアログの下端を隠さないようにする
+        <div className="fixed bottom-4 inset-x-0 z-[5] flex justify-center px-4 pointer-events-none">
             <div className="pointer-events-auto flex flex-wrap items-center justify-center gap-x-4 gap-y-2 rounded-2xl bg-gray-900/95 px-4 py-2 text-sm max-sm:text-xs text-white shadow-lg">
                 <div className="flex items-center gap-3">
                     <span className="shrink-0 rounded-full bg-main px-3 py-0.5 text-xs font-bold text-gray-900">
