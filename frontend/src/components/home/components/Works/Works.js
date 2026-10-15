@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import axios from 'axios';
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
+import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from '@heroicons/react/24/solid';
 import EachWork from './EachWork';
 import CreateWorkModal from '../CreateWork/CreateWorkModal';
 import { workImageAlt } from '../../../../utils/TextUtil';
@@ -92,6 +92,16 @@ const Works = ({ isAuth, onLoaded }) => {
         setWorks((prev) => prev.map((item) => (newOrder.has(item.id) ? { ...item, sort_order: newOrder.get(item.id) } : item)))
     }
 
+    // 作った作品を一覧に足し、そのまま詳細の編集画面を開く
+    const handleCreated = (work) => {
+        const next = [...(works ?? []), work]
+        savedOrder.current.set(work.id, work.sort_order)
+        resetOrder(toOrder(next))
+        setWorks(next)
+        setCreateWorkModalIsOpen(false)
+        handleModal(work)
+    }
+
     const handleModal = (work) => {
         setSelectedWork(work);
         setModalIsOpen(true)
@@ -102,9 +112,18 @@ const Works = ({ isAuth, onLoaded }) => {
             <div id="works" className="scroll-mt-16">
                 <div className="flex justify-center">
                     <div className="max-w-5xl mx-16 max-xl:mx-8 max-lg:mx-4 w-full">
-                        <div className="text-5xl max-sm:text-4xl font-bold mb-4 max-md:mb-0 flex justify-between items-end">
+                        <div className="text-5xl max-sm:text-4xl font-bold mb-4 max-md:mb-0 flex flex-wrap justify-between items-end gap-3">
                             <div>Works<span className="ml-4 text-xl">これまでしてきたこと</span></div>
-                            {isAuth && <div className="text-xl font-normal text-blue-600 hover:underline cursor-pointer" onClick={() => setCreateWorkModalIsOpen(true)}>新規作成</div>}
+                            {isAuth && (
+                                <button
+                                    type="button"
+                                    onClick={() => setCreateWorkModalIsOpen(true)}
+                                    className="inline-flex items-center gap-1 rounded-full bg-gray-900 px-4 py-2 text-sm font-bold text-white hover:bg-gray-700"
+                                >
+                                    <PlusIcon className="h-4 w-4" aria-hidden="true" />
+                                    作品を追加
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -145,7 +164,9 @@ const Works = ({ isAuth, onLoaded }) => {
                 </div>
             </div>
             <EachWork modalIsOpen={modalIsOpen} setModalIsOpen={setModalIsOpen} selectedWork={selectedWork} setSelectedWork={setSelectedWork} orderedWorks={orderedWorks} isAuth={isAuth} setWorks={setWorks} />
-            <CreateWorkModal createWorkModalIsOpen={createWorkModalIsOpen} setCreateWorkModalIsOpen={setCreateWorkModalIsOpen} />
+            {isAuth && (
+                <CreateWorkModal isOpen={createWorkModalIsOpen} onClose={() => setCreateWorkModalIsOpen(false)} categories={categories} onCreated={handleCreated} />
+            )}
             {isAuth && settingsWork && (
                 <WorkSettingsDialog key={settingsWork.id} work={settingsWork} categories={categories} setWorks={setWorks} onClose={() => setSettingsWorkId(null)} />
             )}
@@ -179,6 +200,7 @@ const WorkCard = ({ item, size, isAuth, onOpen, onOpenSettings, onMove, isFirst,
                 )}
                 <img
                     src={`${process.env.REACT_APP_API_DOMAIN}/images/works/${item.id}/1_mid.jpg`} alt={workImageAlt(item, 1)}
+                    onError={(event) => { event.target.onerror = null; event.target.src = '/images/works/error.jpg' }}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
                 />

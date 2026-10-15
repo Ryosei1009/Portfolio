@@ -50,6 +50,36 @@ router.post('/update/name', (req, res) => {
     })
 });
 
+// 作品を新しく作る（記事が書き終わるまで見えないよう、非公開で作る）
+router.post('/create', (req, res) => {
+    const token = req.headers['authorization'];
+    jwt.verify(token, JWT_SECRET, (err) => {
+        if (err) return res.status(401).send('無許可');
+        const { name, each_name, category } = req.body;
+        if (!name || !each_name || !category) return res.status(400).send('タイトルとカテゴリを入力してください。');
+
+        db.query(
+            `INSERT INTO works (name, each_name, url, url_name, purpose, outlook, category,
+                device_1, device_2, device_3, device_4, device_5, sort_order, is_featured, highlight, is_published)
+            SELECT ?, ?, 'none', '', '', '', ?, '', '', '', '', '', COALESCE(MAX(sort_order), 0) + 1, 0, NULL, 0 FROM works`,
+            [name, each_name, category],
+            (err, results) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).send('作品の作成に失敗しました。');
+                }
+                db.query('SELECT * FROM works WHERE id = ?', [results.insertId], (err, rows) => {
+                    if (err) {
+                        console.error(err);
+                        return res.status(500).send('作品の作成に失敗しました。');
+                    }
+                    res.json(rows[0]);
+                });
+            }
+        );
+    })
+});
+
 // 作品カードの設定（カード用タイトル・カテゴリ・成果・代表作・公開）を更新する
 router.post('/update/settings', (req, res) => {
     const token = req.headers['authorization'];
