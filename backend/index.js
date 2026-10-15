@@ -87,6 +87,9 @@ app.use('/aboutme/', aboutMeRouter);
 const worksRouter = require('./routes/Works');
 app.use('/works/', worksRouter);
 
+const settingsRouter = require('./routes/Settings');
+app.use('/settings/', settingsRouter);
+
 app.post('/auth/check', (req, res) => {
   const token = req.headers['authorization'];
 

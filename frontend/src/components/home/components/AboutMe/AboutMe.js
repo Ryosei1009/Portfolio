@@ -50,7 +50,7 @@ const IntroductionPreview = ({ introduction }) => {
     )
 }
 
-const AboutMe = ({ isAuth, onLoaded }) => {
+const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
     const [iconOpen, setIconOpen] = useState(false)
     const [profile, setProfile] = useState()
     const [detailOpen, setDetailOpen] = useState(false)
@@ -75,6 +75,10 @@ const AboutMe = ({ isAuth, onLoaded }) => {
         }
         fetchAboutMe();
     }, [])
+
+    useEffect(() => {
+        if (profile) onProfileChange?.(profile)
+    }, [profile])
 
     const update = (key) => (value) => setProfile((prev) => ({ ...prev, [key]: value }))
     const toggle = (key) => setEditing((prev) => (prev === key ? null : key))

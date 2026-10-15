@@ -8,6 +8,8 @@ const Home = ({ isAuth }) => {
   const { hash } = useLocation()
   const [loaded, setLoaded] = useState({ aboutMe: false, works: false })
   const scrolled = useRef(false)
+  // ヒーローの名前は About Me の名前を使う（編集するとヒーローにもすぐ反映される）
+  const [profile, setProfile] = useState()
 
   // ログイン画面などから「/#works」で来たときは、内容が出そろってから該当の位置へ移動する
   useEffect(() => {
@@ -18,8 +20,8 @@ const Home = ({ isAuth }) => {
 
   return (
     <>
-      <TopBanner />
-      <AboutMe isAuth={isAuth} onLoaded={() => setLoaded((prev) => ({ ...prev, aboutMe: true }))} />
+      <TopBanner isAuth={isAuth} profile={profile} />
+      <AboutMe isAuth={isAuth} onLoaded={() => setLoaded((prev) => ({ ...prev, aboutMe: true }))} onProfileChange={setProfile} />
       <Works isAuth={isAuth} onLoaded={() => setLoaded((prev) => ({ ...prev, works: true }))} />
     </>
   )
