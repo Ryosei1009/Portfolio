@@ -1,15 +1,16 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import EachWork from './EachWork';
 import CreateWorkModal from '../CreateWork/CreateWorkModal';
-import axios from 'axios';
 import { workImageAlt } from '../../../../utils/TextUtil';
-import { useAutoSave } from '../../../../utils/useAutoSave';
-import SaveStatus from '../../../_utils/SaveStatus';
+import WorkSettingsDialog from './WorkSettingsDialog';
+import { EditButton } from '../../../_utils/EditControls';
 
 const Works = ({ isAuth, onLoaded }) => {
     const [selectedWork, setSelectedWork] = useState(0);
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [createWorkModalIsOpen, setCreateWorkModalIsOpen] = useState(false);
+    // 設定を編集している作品の id
+    const [settingsWorkId, setSettingsWorkId] = useState(null);
     const [works, setWorks] = useState()
     const categories = ['学外活動', '大学', '高校']
 
@@ -45,6 +46,7 @@ const Works = ({ isAuth, onLoaded }) => {
 
     // 画面に並んでいる順（詳細モーダルの ← → 移動で使う）
     const orderedWorks = [...featuredWorks, ...worksByCategory.flatMap(({ items }) => items)]
+    const settingsWork = works?.find((item) => item.id === settingsWorkId)
 
     const handleModal = (work) => {
         setSelectedWork(work);
@@ -74,7 +76,7 @@ const Works = ({ isAuth, onLoaded }) => {
                                 </div>
                                 <div className="mt-6 grid grid-cols-3 max-md:grid-cols-1 gap-6 text-black font-bold">
                                     {featuredWorks.map((item) => (
-                                        <WorkCard key={item.id} item={item} size="large" isAuth={isAuth} onOpen={handleModal} />
+                                        <WorkCard key={item.id} item={item} size="large" isAuth={isAuth} onOpen={handleModal} onOpenSettings={setSettingsWorkId} />
                                     ))}
                                 </div>
                             </>
@@ -90,7 +92,7 @@ const Works = ({ isAuth, onLoaded }) => {
                                 </div>
                                 <div className="mt-6 grid grid-cols-4 max-lg:grid-cols-3 max-md:grid-cols-2 gap-4 max-sm:gap-3 text-black font-bold">
                                     {items.map((item) => (
-                                        <WorkCard key={item.id} item={item} size="small" isAuth={isAuth} onOpen={handleModal} />
+                                        <WorkCard key={item.id} item={item} size="small" isAuth={isAuth} onOpen={handleModal} onOpenSettings={setSettingsWorkId} />
                                     ))}
                                 </div>
                             </React.Fragment>
@@ -100,13 +102,16 @@ const Works = ({ isAuth, onLoaded }) => {
             </div>
             <EachWork modalIsOpen={modalIsOpen} setModalIsOpen={setModalIsOpen} selectedWork={selectedWork} setSelectedWork={setSelectedWork} works={works} orderedWorks={orderedWorks} isAuth={isAuth} setWorks={setWorks} />
             <CreateWorkModal createWorkModalIsOpen={createWorkModalIsOpen} setCreateWorkModalIsOpen={setCreateWorkModalIsOpen} />
+            {isAuth && settingsWork && (
+                <WorkSettingsDialog key={settingsWork.id} work={settingsWork} categories={categories} setWorks={setWorks} onClose={() => setSettingsWorkId(null)} />
+            )}
         </>
     )
 }
 
 export default Works
 
-const WorkCard = ({ item, size, isAuth, onOpen }) => {
+const WorkCard = ({ item, size, isAuth, onOpen, onOpenSettings }) => {
     const isLarge = size === 'large'
     const handleKeyDown = (event) => {
         if (event.key === 'Enter' || event.key === ' ') {
@@ -116,7 +121,7 @@ const WorkCard = ({ item, size, isAuth, onOpen }) => {
     }
     const buttonProps = { role: 'button', tabIndex: 0, onClick: () => onOpen(item), onKeyDown: handleKeyDown }
 
-    // 管理者は作品名をその場で編集するので、画像だけを詳細を開くボタンにする
+    // 管理者はカードの中に「設定」ボタンがあるので、画像だけを詳細を開くボタンにする
     return (
         <div
             {...(isAuth ? {} : buttonProps)}
@@ -135,12 +140,8 @@ const WorkCard = ({ item, size, isAuth, onOpen }) => {
                 />
             </div>
             <div className={`flex-1 flex flex-col ${isLarge ? 'px-4 py-5 text-xl max-md:text-lg' : 'px-2 py-3 text-base max-sm:text-sm'}`}>
-                {isAuth ? (
-                    <WorkNameEditor item={item} />
-                ) : (
-                    // name の1つ目の <p> はカテゴリ見出しなので小さく表示する
-                    <div className="[&>p:first-child]:text-[0.75em] [&>p:first-child]:font-medium [&>p:first-child]:text-gray-500" dangerouslySetInnerHTML={{ __html: item.name }} />
-                )}
+                {/* name の1つ目の <p> はカテゴリ見出しなので小さく表示する */}
+                <div className="[&>p:first-child]:text-[0.75em] [&>p:first-child]:font-medium [&>p:first-child]:text-gray-500" dangerouslySetInnerHTML={{ __html: item.name }} />
                 {item.highlight && (
                     // カードの高さがそろうように下端に寄せる
                     <div className={`mt-auto pt-3 flex justify-center ${isLarge ? 'text-sm' : 'text-xs'}`}>
@@ -149,55 +150,12 @@ const WorkCard = ({ item, size, isAuth, onOpen }) => {
                         </div>
                     </div>
                 )}
+                {isAuth && (
+                    <div className={`${item.highlight ? 'pt-2' : 'mt-auto pt-3'} flex justify-center`}>
+                        <EditButton label="設定" onClick={() => onOpenSettings(item.id)} />
+                    </div>
+                )}
             </div>
         </div>
-    )
-}
-
-const WorkNameEditor = ({ item }) => {
-    const [isEditing, setIsEditing] = useState(false)
-    const nameRef = useRef(null)
-    const [formData, setFormData] = useState({
-        id: item.id,
-        name: item.name,
-    })
-
-    const handleChange = (event) => {
-        setFormData(prev => ({ ...prev, [event.target.name]: event.target.value }));
-    };
-
-    const { status, flush } = useAutoSave(formData, (data) => (
-        axios.post(`${process.env.REACT_APP_API_DOMAIN}/works/update/name`, data, {
-            headers: {
-                'Authorization': localStorage.getItem('token')
-            }
-        })
-    ));
-
-    return (
-        <>
-            <input
-                name="name"
-                type="text"
-                onBlur={() => setIsEditing(false)}
-                onChange={(event) => handleChange(event)}
-                value={formData.name}
-                className={`${isEditing ? "block" : "hidden"} w-full`}
-                ref={nameRef}
-            />
-            <div
-                dangerouslySetInnerHTML={{ __html: formData.name }}
-                className={`${isEditing ? "hidden" : "block"}`}
-                onClick={() => {
-                    setIsEditing(true)
-                    setTimeout(() => {
-                        nameRef.current.focus()
-                        nameRef.current.setSelectionRange(0, 0);
-                    }, 1)
-                }}
-            />
-            <SaveStatus status={status} onRetry={flush} className="mt-1 text-center" />
-        </>
-
     )
 }

@@ -50,6 +50,27 @@ router.post('/update/name', (req, res) => {
     })
 });
 
+// 作品カードの設定（カード用タイトル・カテゴリ・成果・代表作・公開）を更新する
+router.post('/update/settings', (req, res) => {
+    const token = req.headers['authorization'];
+    jwt.verify(token, JWT_SECRET, (err) => {
+        if (err) return res.status(401).send('無許可');
+        const { id, name, category, highlight, is_featured, is_published } = req.body;
+
+        db.query(
+            'UPDATE works SET name = ?, category = ?, highlight = ?, is_featured = ?, is_published = ? WHERE id = ?',
+            [name, category, highlight || null, Number(is_featured) === 1 ? 1 : 0, Number(is_published) === 0 ? 0 : 1, id],
+            (err, results) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).send('データの更新に失敗しました。');
+                }
+                res.json(results);
+            }
+        );
+    })
+});
+
 router.post('/update', (req, res) => {
     const token = req.headers['authorization'];
     jwt.verify(token, JWT_SECRET, (err, decoded) => {

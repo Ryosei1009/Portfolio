@@ -2,7 +2,7 @@ import React from 'react'
 import { flushAll, useSaveSummary } from '../../utils/useAutoSave'
 
 const LABELS = {
-    idle: 'クリックした箇所を編集できます',
+    idle: 'ボタンや画像から編集できます',
     pending: '未保存の変更があります',
     saving: '保存中…',
     saved: 'すべて保存しました',
