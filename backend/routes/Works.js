@@ -71,6 +71,30 @@ router.post('/update/settings', (req, res) => {
     })
 });
 
+// 作品の表示順をまとめて更新する（orders: [{ id, sort_order }, ...]）
+router.post('/update/order', (req, res) => {
+    const token = req.headers['authorization'];
+    jwt.verify(token, JWT_SECRET, (err) => {
+        if (err) return res.status(401).send('無許可');
+        const orders = (Array.isArray(req.body.orders) ? req.body.orders : [])
+            .map((order) => ({ id: Number(order.id), sort_order: Number(order.sort_order) }))
+            .filter((order) => Number.isInteger(order.id) && Number.isInteger(order.sort_order));
+        if (orders.length === 0) return res.status(400).send('並び順が指定されていません。');
+
+        db.query(
+            `UPDATE works SET sort_order = CASE id ${orders.map(() => 'WHEN ? THEN ?').join(' ')} END WHERE id IN (?)`,
+            [...orders.flatMap((order) => [order.id, order.sort_order]), orders.map((order) => order.id)],
+            (err, results) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).send('データの更新に失敗しました。');
+                }
+                res.json(results);
+            }
+        );
+    })
+});
+
 router.post('/update', (req, res) => {
     const token = req.headers['authorization'];
     jwt.verify(token, JWT_SECRET, (err, decoded) => {

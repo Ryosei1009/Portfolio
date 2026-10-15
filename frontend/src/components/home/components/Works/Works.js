@@ -1,9 +1,23 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
+import axios from 'axios';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 import EachWork from './EachWork';
 import CreateWorkModal from '../CreateWork/CreateWorkModal';
 import { workImageAlt } from '../../../../utils/TextUtil';
 import WorkSettingsDialog from './WorkSettingsDialog';
 import { EditButton } from '../../../_utils/EditControls';
+import { useAutoSave } from '../../../../utils/useAutoSave';
+
+// 並び順として保存する値（id と sort_order だけ）
+const toOrder = (works) => works?.map((item) => ({ id: item.id, sort_order: item.sort_order ?? 0 }))
+
+const saveOrder = (orders) => (
+    axios.post(`${process.env.REACT_APP_API_DOMAIN}/works/update/order`, { orders }, {
+        headers: {
+            'Authorization': localStorage.getItem('token')
+        }
+    })
+)
 
 const Works = ({ isAuth, onLoaded }) => {
     const [selectedWork, setSelectedWork] = useState(0);
@@ -14,6 +28,10 @@ const Works = ({ isAuth, onLoaded }) => {
     const [works, setWorks] = useState()
     const categories = ['学外活動', '大学', '高校']
 
+    // 並び替え（管理者のみ）。読み込んだ並び順は保存済みとして扱う
+    const order = useMemo(() => toOrder(works), [works])
+    const { reset: resetOrder } = useAutoSave(order, saveOrder)
+
     useEffect(() => {
         async function fetchWorks() {
             try {
@@ -23,6 +41,7 @@ const Works = ({ isAuth, onLoaded }) => {
                     headers: token ? { 'Authorization': token } : {},
                 });
                 const data = await response.json();
+                resetOrder(toOrder(data));
                 setWorks(data);
                 console.log(data)
             } catch (error) {
@@ -47,6 +66,16 @@ const Works = ({ isAuth, onLoaded }) => {
     // 画面に並んでいる順（詳細モーダルの ← → 移動で使う）
     const orderedWorks = [...featuredWorks, ...worksByCategory.flatMap(({ items }) => items)]
     const settingsWork = works?.find((item) => item.id === settingsWorkId)
+
+    // 同じ欄（代表作・カテゴリ）の中で、隣の作品と入れ替えて番号を振り直す
+    const moveWork = (group, index, delta) => {
+        const target = index + delta
+        if (target < 0 || target >= group.length) return
+        const reordered = [...group]
+        ;[reordered[index], reordered[target]] = [reordered[target], reordered[index]]
+        const newOrder = new Map(reordered.map((item, i) => [item.id, i + 1]))
+        setWorks((prev) => prev.map((item) => (newOrder.has(item.id) ? { ...item, sort_order: newOrder.get(item.id) } : item)))
+    }
 
     const handleModal = (work) => {
         setSelectedWork(work);
@@ -75,8 +104,8 @@ const Works = ({ isAuth, onLoaded }) => {
                                     </div>
                                 </div>
                                 <div className="mt-6 grid grid-cols-3 max-md:grid-cols-1 gap-6 text-black font-bold">
-                                    {featuredWorks.map((item) => (
-                                        <WorkCard key={item.id} item={item} size="large" isAuth={isAuth} onOpen={handleModal} onOpenSettings={setSettingsWorkId} />
+                                    {featuredWorks.map((item, index) => (
+                                        <WorkCard key={item.id} item={item} size="large" isAuth={isAuth} onOpen={handleModal} onOpenSettings={setSettingsWorkId} onMove={(delta) => moveWork(featuredWorks, index, delta)} isFirst={index === 0} isLast={index === featuredWorks.length - 1} />
                                     ))}
                                 </div>
                             </>
@@ -91,8 +120,8 @@ const Works = ({ isAuth, onLoaded }) => {
                                     </div>
                                 </div>
                                 <div className="mt-6 grid grid-cols-4 max-lg:grid-cols-3 max-md:grid-cols-2 gap-4 max-sm:gap-3 text-black font-bold">
-                                    {items.map((item) => (
-                                        <WorkCard key={item.id} item={item} size="small" isAuth={isAuth} onOpen={handleModal} onOpenSettings={setSettingsWorkId} />
+                                    {items.map((item, index) => (
+                                        <WorkCard key={item.id} item={item} size="small" isAuth={isAuth} onOpen={handleModal} onOpenSettings={setSettingsWorkId} onMove={(delta) => moveWork(items, index, delta)} isFirst={index === 0} isLast={index === items.length - 1} />
                                     ))}
                                 </div>
                             </React.Fragment>
@@ -111,7 +140,7 @@ const Works = ({ isAuth, onLoaded }) => {
 
 export default Works
 
-const WorkCard = ({ item, size, isAuth, onOpen, onOpenSettings }) => {
+const WorkCard = ({ item, size, isAuth, onOpen, onOpenSettings, onMove, isFirst, isLast }) => {
     const isLarge = size === 'large'
     const handleKeyDown = (event) => {
         if (event.key === 'Enter' || event.key === ' ') {
@@ -151,11 +180,30 @@ const WorkCard = ({ item, size, isAuth, onOpen, onOpenSettings }) => {
                     </div>
                 )}
                 {isAuth && (
-                    <div className={`${item.highlight ? 'pt-2' : 'mt-auto pt-3'} flex justify-center`}>
+                    <div className={`${item.highlight ? 'pt-2' : 'mt-auto pt-3'} flex items-center justify-center gap-1`}>
+                        <MoveButton direction="back" disabled={isFirst} onClick={() => onMove(-1)} />
                         <EditButton label="設定" onClick={() => onOpenSettings(item.id)} />
+                        <MoveButton direction="forward" disabled={isLast} onClick={() => onMove(1)} />
                     </div>
                 )}
             </div>
         </div>
+    )
+}
+
+// 並び替えのボタン（前へ／後ろへ）
+const MoveButton = ({ direction, disabled, onClick }) => {
+    const Icon = direction === 'back' ? ChevronLeftIcon : ChevronRightIcon
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            disabled={disabled}
+            aria-label={direction === 'back' ? '前に移動' : '後ろに移動'}
+            title={direction === 'back' ? '前に移動' : '後ろに移動'}
+            className="rounded-full border border-gray-300 bg-white p-1 text-gray-700 shadow-sm hover:bg-gray-100 disabled:opacity-30 disabled:hover:bg-white"
+        >
+            <Icon className="h-4 w-4" aria-hidden="true" />
+        </button>
     )
 }
