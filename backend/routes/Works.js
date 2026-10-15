@@ -2,18 +2,10 @@ const express = require('express');
 const router = express.Router();
 const mysql = require('mysql2');
 const jwt = require('jsonwebtoken');
-const multer = require('multer');
-const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
+const { receiveImage, writeJpegs } = require('../utils/imageUpload');
 const JWT_SECRET = process.env.JWT_SECRET;
-
-// アップロードされた作品画像は、メモリで受け取って変換してから保存する
-const upload = multer({
-    storage: multer.memoryStorage(),
-    limits: { fileSize: 10 * 1024 * 1024 },
-    fileFilter: (req, file, cb) => cb(null, ['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype)),
-});
 
 // 1枚の画像から、原寸・一覧用（_mid）・サムネイル（_small）の3サイズを作る
 const IMAGE_SIZES = [
@@ -74,12 +66,7 @@ router.post('/update_image', (req, res) => {
     jwt.verify(token, JWT_SECRET, (err) => {
         if (err) return res.status(401).send('無許可');
 
-        upload.single('image')(req, res, (uploadErr) => {
-            if (uploadErr) {
-                return res.status(400).send(uploadErr.code === 'LIMIT_FILE_SIZE' ? '画像は10MBまでにしてください。' : '画像を受け取れませんでした。');
-            }
-            if (!req.file) return res.status(400).send('JPEG・PNG・WebP の画像を選んでください。');
-
+        receiveImage(req, res, () => {
             const id = Number(req.body.id);
             const imageId = Number(req.body.image_id);
             if (!Number.isInteger(id) || !Number.isInteger(imageId) || imageId < 1 || imageId > 5) {
@@ -96,17 +83,10 @@ router.post('/update_image', (req, res) => {
                 try {
                     const dir = path.join('images', 'works', String(id));
                     await fs.promises.mkdir(dir, { recursive: true });
-                    const image = sharp(req.file.buffer).rotate();
-                    // 3サイズとも作れてから差し替える（途中で失敗しても、元の画像が中途半端に残らない）
-                    const files = await Promise.all(IMAGE_SIZES.map(async ({ suffix, width }) => {
-                        const file = path.join(dir, `${imageId}${suffix}.jpg`);
-                        await image.clone()
-                            .resize({ width, withoutEnlargement: true })
-                            .jpeg({ quality: 82, mozjpeg: true })
-                            .toFile(`${file}.tmp`);
-                        return file;
-                    }));
-                    await Promise.all(files.map((file) => fs.promises.rename(`${file}.tmp`, file)));
+                    await writeJpegs(req.file.buffer, IMAGE_SIZES.map(({ suffix, width }) => ({
+                        file: path.join(dir, `${imageId}${suffix}.jpg`),
+                        resize: { width, withoutEnlargement: true },
+                    })));
                     res.json({ id, image_id: imageId });
                 } catch (error) {
                     console.error(error);

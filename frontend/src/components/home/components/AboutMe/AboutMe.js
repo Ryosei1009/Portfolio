@@ -5,6 +5,7 @@ import IconModal from './IconModal'
 import { markedText } from '../../../../utils/TextUtil'
 import { useAutoSave } from '../../../../utils/useAutoSave'
 import { EditButton, EditPanel, MarkdownField, TextField } from '../../../_utils/EditControls'
+import ImageUploadButton from '../../../_utils/ImageUploadButton'
 
 const achievements = [
     { value: '6,000人', label: 'ゲームサーバーのコミュニティ規模（Discordメンバー）' },
@@ -118,7 +119,16 @@ const AboutMe = ({ isAuth, onLoaded }) => {
                                         </a>
                                     </div>
                                     {isAuth && (
-                                        <EditButton label="プロフィールを編集" isOpen={editing === 'profile'} onClick={() => toggle('profile')} className="mt-3" />
+                                        <>
+                                            <EditButton label="プロフィールを編集" isOpen={editing === 'profile'} onClick={() => toggle('profile')} className="mt-3" />
+                                            <ImageUploadButton
+                                                label="写真を変更"
+                                                endpoint="/aboutme/update_image"
+                                                hint="正方形に切り抜きます（中央）。JPEG・PNG・WebP、10MBまで。"
+                                                doneMessage="写真を変更しました"
+                                                onUploaded={(data) => update('image')(data.image)}
+                                            />
+                                        </>
                                     )}
                                 </div>
                                 <div className="flex-1">
@@ -213,7 +223,7 @@ const AboutMe = ({ isAuth, onLoaded }) => {
                         </>
                     )}
                 </div >
-                <IconModal iconOpen={iconOpen} setIconOpen={setIconOpen} alt={profile ? `${profile.name}のプロフィール写真` : 'プロフィール写真'} />
+                <IconModal iconOpen={iconOpen} setIconOpen={setIconOpen} src={profile?.image} alt={profile ? `${profile.name}のプロフィール写真` : 'プロフィール写真'} />
             </div >
         </>
     )
