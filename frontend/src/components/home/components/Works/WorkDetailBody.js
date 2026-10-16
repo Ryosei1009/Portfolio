@@ -40,8 +40,17 @@ const WorkDetailBody = ({ work, selectedImage, setSelectedImage, onZoom, imageVe
                         src={workImageUrl(work.id, `${image}.jpg`, imageVersion)}
                         alt={workImageAlt(work, image)} loading="lazy" onError={showFallbackImage} />
                     <div className="mt-6 max-md:mt-4 px-2 flex justify-between">
+                        {/* 押せる範囲は before で 44px 四方以上に広げる（画像の大きさと並びは変えない） */}
                         {[1, 2, 3, 4, 5].map((item) => (
-                            <img key={item} onClick={() => setSelectedImage(item)} className="w-1/6 h-161 cursor-pointer hover:opacity-80 hover:scale-110" src={workImageUrl(work.id, `${item}_small.jpg`, imageVersion)} alt={workImageAlt(work, item)} loading="lazy" onError={showFallbackImage} />
+                            <button
+                                key={item}
+                                type="button"
+                                onClick={() => setSelectedImage(item)}
+                                aria-pressed={image === item}
+                                className="group relative w-1/6 before:absolute before:left-1/2 before:top-1/2 before:h-full before:min-h-11 before:w-full before:min-w-11 before:-translate-x-1/2 before:-translate-y-1/2 before:content-[''] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
+                            >
+                                <img className="w-full group-hover:opacity-80 group-hover:scale-110" src={workImageUrl(work.id, `${item}_small.jpg`, imageVersion)} alt={workImageAlt(work, item)} loading="lazy" onError={showFallbackImage} />
+                            </button>
                         ))}
                     </div>
                     {imageSlot}
