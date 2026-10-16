@@ -95,6 +95,15 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, 
                                             ) : (
                                                 <WorkDetailBody work={selectedWork} selectedImage={selectedImage} setSelectedImage={setSelectedImage} onZoom={zoom} imageVersion={imageVersion} />
                                             )}
+                                            {/* 読み終わった位置からも閉じられるように、末尾にも閉じるボタンを置く */}
+                                            <button
+                                                type="button"
+                                                onClick={handleClose}
+                                                className="mt-8 max-lg:mt-5 flex items-center rounded-full border-2 border-gray-900 px-6 py-2 font-bold hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 transition-colors"
+                                            >
+                                                <XMarkIcon className="w-5 h-5 mr-1" aria-hidden="true" />
+                                                閉じる
+                                            </button>
                                         </Dialog.Panel>
                                     </div>
                                 )}

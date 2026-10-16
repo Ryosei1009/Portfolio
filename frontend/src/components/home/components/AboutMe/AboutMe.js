@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import axios from 'axios'
-import { ChevronDownIcon, EnvelopeIcon } from '@heroicons/react/24/solid'
+import { ChevronDownIcon, ChevronUpIcon, EnvelopeIcon } from '@heroicons/react/24/solid'
 import IconModal from './IconModal'
 import { markedText } from '../../../../utils/TextUtil'
 import { useAutoSave } from '../../../../utils/useAutoSave'
@@ -49,6 +49,7 @@ const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
     const [iconOpen, setIconOpen] = useState(false)
     const [profile, setProfile] = useState()
     const [detailOpen, setDetailOpen] = useState(false)
+    const detailToggleRef = useRef(null)
     // 開いている編集欄（'profile' | 'introduction-top' | 'introduction-detail' | 'history' | 'skill'）
     const [editing, setEditing] = useState(null)
 
@@ -80,6 +81,15 @@ const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
     const isEditing = (key) => isAuth && editing === key
 
     const { summary, detail } = splitIntroduction(profile?.introduction)
+
+    // 末尾の「閉じる」: 折りたたんだ後、元の「詳しく読む」ボタンの位置まで戻してフォーカスする
+    const closeDetail = () => {
+        setDetailOpen(false)
+        requestAnimationFrame(() => {
+            detailToggleRef.current?.scrollIntoView({ block: 'center' })
+            detailToggleRef.current?.focus({ preventScroll: true })
+        })
+    }
 
     const introductionPanel = (key) => isEditing(key) && (
         <EditPanel title="自己紹介の文章を編集" onClose={() => setEditing(null)} className="mt-4">
@@ -187,6 +197,7 @@ const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
                                     <div className="flex flex-wrap items-center justify-center gap-3">
                                         {detail && (
                                             <button
+                                                ref={detailToggleRef}
                                                 type="button"
                                                 onClick={() => setDetailOpen(!detailOpen)}
                                                 aria-expanded={detailOpen}
@@ -203,12 +214,23 @@ const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
                                     </div>
                                     {introductionPanel('introduction-detail')}
                                     {detail && (
-                                        <div
-                                            id="aboutme-detail"
-                                            hidden={!detailOpen}
-                                            className="mt-6 rounded-2xl border border-gray-200 p-8 max-md:p-5 leading-relaxed max-md:text-sm"
-                                            dangerouslySetInnerHTML={markedText(detail)}
-                                        />
+                                        <div id="aboutme-detail" hidden={!detailOpen}>
+                                            <div
+                                                className="mt-6 rounded-2xl border border-gray-200 p-8 max-md:p-5 leading-relaxed max-md:text-sm"
+                                                dangerouslySetInnerHTML={markedText(detail)}
+                                            />
+                                            <div className="mt-6 flex justify-center">
+                                                <button
+                                                    type="button"
+                                                    onClick={closeDetail}
+                                                    aria-controls="aboutme-detail"
+                                                    className="flex items-center rounded-full border-2 border-gray-900 px-6 py-2 font-bold hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 transition-colors"
+                                                >
+                                                    閉じる
+                                                    <ChevronUpIcon className="w-5 h-5 ml-1" aria-hidden="true" />
+                                                </button>
+                                            </div>
+                                        </div>
                                     )}
                                 </div>
                             )}
