@@ -1,16 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql2');
+const { db } = require('../db');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET;
-
-const db = mysql.createConnection({
-    host: process.env.MYSQL_HOST,
-    port: process.env.MYSQL_PORT,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE,
-});
 
 // 画面から書き換えてよい設定（これ以外の名前は無視する）
 const EDITABLE_KEYS = ['hero_label', 'hero_catchphrase', 'hero_github_url', 'hero_image_alt'];

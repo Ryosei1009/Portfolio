@@ -1,5 +1,4 @@
 const express = require('express');
-const mysql = require('mysql2');
 const cors = require('cors');
 const fs = require('fs');
 require('dotenv').config()
@@ -114,16 +113,10 @@ app.post('/auth/create', (req, res) => {
   res.json({ token: jwt.sign({ id: 1 }, JWT_SECRET, { expiresIn: '30d' }) });
 });
 
-const db = mysql.createConnection({
-  host: process.env.MYSQL_HOST,
-  port: process.env.MYSQL_PORT,
-  user: process.env.MYSQL_USER,
-  password: process.env.MYSQL_PASSWORD,
-  database: process.env.MYSQL_DATABASE,
-});
-
-db.connect((err) => {
-  if (err) throw err;
+// 起動時に DB へつながるか確かめる。つながらなくてもサーバーは落とさない（DB が戻れば、次のリクエストでつなぎ直す）
+const { db } = require('./db');
+db.query('SELECT 1', (err) => {
+  if (err) return console.error('MySQL に接続できませんでした。DB が使えるようになれば自動でつなぎ直します:', err.message);
   console.log('Connected to MySQL');
 });
 

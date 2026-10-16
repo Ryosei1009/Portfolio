@@ -1,18 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql2');
+const { db, withTransaction } = require('../db');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET;
-
-const db = mysql.createConnection({
-    host: process.env.MYSQL_HOST,
-    port: process.env.MYSQL_PORT,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE,
-    // 保存のときに、書き換えと削除を1回のトランザクションで送るため
-    multipleStatements: true,
-});
 
 const MAX_ITEMS = 6;
 
@@ -41,21 +31,18 @@ router.post('/save', (req, res) => {
         }
 
         const rows = items.map((item, index) => [index + 1, item.value.slice(0, 50), item.label.slice(0, 200)]);
-        db.query(
-            `START TRANSACTION;
-            INSERT INTO achievements (position, value, label) VALUES ? ON DUPLICATE KEY UPDATE value = VALUES(value), label = VALUES(label);
-            DELETE FROM achievements WHERE position > ?;
-            COMMIT;`,
-            [rows, rows.length],
-            (err) => {
-                if (err) {
-                    console.error(err);
-                    // 途中で失敗したときは、書きかけの変更を取り消す
-                    return db.query('ROLLBACK', () => res.status(500).send('データの更新に失敗しました。'));
-                }
-                res.json({ count: rows.length });
-            }
-        );
+        withTransaction(async (conn) => {
+            await conn.query(
+                'INSERT INTO achievements (position, value, label) VALUES ? ON DUPLICATE KEY UPDATE value = VALUES(value), label = VALUES(label)',
+                [rows]
+            );
+            await conn.query('DELETE FROM achievements WHERE position > ?', [rows.length]);
+        })
+            .then(() => res.json({ count: rows.length }))
+            .catch((error) => {
+                console.error(error);
+                res.status(500).send('データの更新に失敗しました。');
+            });
     })
 });
 

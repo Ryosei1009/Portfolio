@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql2');
+const { db } = require('../db');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const path = require('path');
@@ -13,14 +13,6 @@ const IMAGE_SIZES = [
     { suffix: '_mid', width: 500 },
     { suffix: '_small', width: 150 },
 ];
-
-const db = mysql.createConnection({
-    host: process.env.MYSQL_HOST,
-    port: process.env.MYSQL_PORT,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE,
-});
 
 router.get('/get', (req, res) => {
     // 非公開の作品は、有効なトークンを持つ管理者にだけ返す
