@@ -1,4 +1,5 @@
 import { Dialog, Transition } from '@headlessui/react';
+import { XMarkIcon } from '@heroicons/react/24/solid';
 import React, { Fragment, useEffect, useState } from 'react';
 import ImageModal from './ImageModal';
 import WorkDetailBody from './WorkDetailBody';
@@ -71,7 +72,19 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, 
                                 {selectedWork && (
                                     <div className="relative rounded-xl border-8 border-main">
                                         <div className="absolute inset-0 bg-white rounded-md"></div>
-                                        <Dialog.Panel className="relative px-10 max-lg:px-4 py-12 max-lg:py-5 flex flex-col items-center">
+                                        <Dialog.Panel className="relative px-10 max-lg:px-4 pt-12 max-lg:pt-14 pb-12 max-lg:pb-5 flex flex-col items-center">
+                                            {/* 閉じるボタン。高さ0の帯を上に固定して、その右上に重ねる（下の内容を押し下げない）
+                                                帯の top とボタンの -top は、パネルの上の余白（pt）に合わせて、ボタンが枠の 4px 内側に来るようにする */}
+                                            <div className="sticky top-12 max-lg:top-14 z-10 h-0 self-stretch">
+                                                <button
+                                                    type="button"
+                                                    onClick={handleClose}
+                                                    aria-label="閉じる"
+                                                    className="absolute -top-11 max-lg:-top-[3.25rem] -right-9 max-lg:-right-3 flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-gray-900 shadow hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
+                                                >
+                                                    <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+                                                </button>
+                                            </div>
                                             {isAuth ? (
                                                 // 作品ごとに作り直して、前の作品の未保存分は閉じるときに保存する
                                                 <WorkDetailEditor key={selectedWork.id} work={selectedWork} selectedImage={selectedImage} setSelectedImage={setSelectedImage} onZoom={zoom} setWorks={setWorks} imageVersion={imageVersion} onImageUploaded={() => onImageUploaded(selectedWork.id)} />
