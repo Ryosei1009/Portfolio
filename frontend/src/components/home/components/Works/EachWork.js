@@ -1,11 +1,13 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import ImageModal from './ImageModal';
 import WorkDetailBody from './WorkDetailBody';
 import WorkDetailEditor from './WorkDetailEditor';
 
-const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, orderedWorks, isAuth, setWorks, imageVersions, onImageUploaded }) => {
+// onAfterClose: 閉じるアニメーションが終わった後に呼ぶ（開く前に押したカードにフォーカスを戻すため）
+const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, orderedWorks, isAuth, setWorks, imageVersions, onImageUploaded, onAfterClose }) => {
+    const closeRef = useRef(null)
     const [selectedImage, setSelectedImage] = useState(1);
     const [isOpen, setIsOpen] = useState(false)
     const handleClose = () => {
@@ -42,8 +44,9 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, 
     const imageVersion = imageVersions?.[selectedWork?.id]
 
     return (
-        <Transition appear show={modalIsOpen} as={Fragment}>
-            <Dialog as="div" className="relative z-10" onClose={() => !isOpen && handleClose()}>
+        <Transition appear show={modalIsOpen} as={Fragment} afterLeave={onAfterClose}>
+            {/* 開いたら閉じるボタンにフォーカスを移す */}
+            <Dialog as="div" className="relative z-10" initialFocus={closeRef} onClose={() => !isOpen && handleClose()}>
                 <Transition.Child
                     as={Fragment}
                     enter="ease-out duration-300"
@@ -77,6 +80,7 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, 
                                                 帯の top とボタンの -top は、パネルの上の余白（pt）に合わせて、ボタンが枠の 4px 内側に来るようにする */}
                                             <div className="sticky top-12 max-lg:top-14 z-10 h-0 self-stretch">
                                                 <button
+                                                    ref={closeRef}
                                                     type="button"
                                                     onClick={handleClose}
                                                     aria-label="閉じる"

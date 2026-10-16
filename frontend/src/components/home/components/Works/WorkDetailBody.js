@@ -1,10 +1,11 @@
+import { Dialog } from '@headlessui/react'
 import React from 'react'
 import { workImageAlt } from '../../../../utils/TextUtil'
 import { showFallbackImage, workImageUrl } from './workImage'
 
 const DEVICE_NUMBERS = ['①', '②', '③', '④', '⑤']
 
-// 作品詳細の中身（公開画面と管理者画面で同じレイアウトを使う）
+// 作品詳細の中身（公開画面と管理者画面で同じレイアウトを使う）。EachWork の Dialog の中でだけ使う
 // editButton(key) / editPanel(key) を渡すと、各ブロックに編集ボタンと編集欄を出す
 // imageSlot を渡すと、サムネイルの下に出す（管理者の画像の差し替えなど）
 // key: 'title' | 'link' | 'purpose' | 'outlook' | 'device'
@@ -14,9 +15,10 @@ const WorkDetailBody = ({ work, selectedImage, setSelectedImage, onZoom, imageVe
 
     return (
         <>
-            <div className="text-5xl max-2xl:text-4xl max-xl:text-3xl max-lg:text-2xl max-md:text-xl font-bold mb-2">
+            {/* ダイアログの名前（aria-labelledby）になる */}
+            <Dialog.Title as="h2" className="text-5xl max-2xl:text-4xl max-xl:text-3xl max-lg:text-2xl max-md:text-xl font-bold mb-2">
                 <div dangerouslySetInnerHTML={{ __html: work.each_name }} />
-            </div>
+            </Dialog.Title>
             {editButton('title')}
             {editPanel('title')}
             <div className="flex flex-wrap items-center justify-center gap-2">

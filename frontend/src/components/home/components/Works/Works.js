@@ -80,6 +80,7 @@ const Works = ({ isAuth, onLoaded }) => {
     const order = useMemo(() => toOrder(works), [works])
     // DB に保存済みの並び順（id → sort_order）。変わった作品の分だけを送るために使う
     const savedOrder = useRef(new Map())
+    const openerRef = useRef(null)
     const saveOrder = async (orders) => {
         const changed = orders.filter((item) => savedOrder.current.get(item.id) !== item.sort_order)
         if (changed.length === 0) return
@@ -162,9 +163,15 @@ const Works = ({ isAuth, onLoaded }) => {
         handleModal(work)
     }
 
-    const handleModal = (work) => {
+    // opener: 押したカード。詳細を閉じたら、そこへフォーカスを戻す（← → で別の作品に移っても、最初に押したカードへ戻す）
+    const handleModal = (work, opener = null) => {
+        openerRef.current = opener
         setSelectedWork(work);
         setModalIsOpen(true)
+    }
+    const handleAfterClose = () => {
+        openerRef.current?.focus({ preventScroll: true })
+        openerRef.current = null
     }
 
     return (
@@ -236,7 +243,7 @@ const Works = ({ isAuth, onLoaded }) => {
                     </div>
                 </div>
             </div>
-            <EachWork modalIsOpen={modalIsOpen} setModalIsOpen={setModalIsOpen} selectedWork={selectedWork} setSelectedWork={setSelectedWork} orderedWorks={orderedWorks} isAuth={isAuth} setWorks={setWorks} imageVersions={imageVersions} onImageUploaded={handleImageUploaded} />
+            <EachWork modalIsOpen={modalIsOpen} setModalIsOpen={setModalIsOpen} selectedWork={selectedWork} setSelectedWork={setSelectedWork} orderedWorks={orderedWorks} isAuth={isAuth} setWorks={setWorks} imageVersions={imageVersions} onImageUploaded={handleImageUploaded} onAfterClose={handleAfterClose} />
             {isAuth && (
                 <CreateWorkModal isOpen={createWorkModalIsOpen} onClose={() => setCreateWorkModalIsOpen(false)} categories={categories} onCreated={handleCreated} />
             )}
@@ -254,10 +261,10 @@ const WorkCard = ({ item, imageVersion, size, isAuth, onOpen, onOpenSettings, on
     const handleKeyDown = (event) => {
         if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault()
-            onOpen(item)
+            onOpen(item, event.currentTarget)
         }
     }
-    const buttonProps = { role: 'button', tabIndex: 0, onClick: () => onOpen(item), onKeyDown: handleKeyDown }
+    const buttonProps = { role: 'button', tabIndex: 0, onClick: (event) => onOpen(item, event.currentTarget), onKeyDown: handleKeyDown }
 
     // 管理者はカードの中に「設定」ボタンがあるので、画像だけを詳細を開くボタンにする
     return (
