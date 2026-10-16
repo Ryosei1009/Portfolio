@@ -104,7 +104,6 @@ const Works = ({ isAuth, onLoaded }) => {
                 savedOrder.current = new Map(toOrder(data).map((item) => [item.id, item.sort_order]));
                 resetOrder(toOrder(data));
                 setWorks(data);
-                console.log(data)
             } catch (error) {
                 console.error('Error fetching new item list:', error);
             } finally {
