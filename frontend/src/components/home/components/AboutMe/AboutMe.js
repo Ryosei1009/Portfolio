@@ -155,11 +155,11 @@ const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
                             {/* 実績 */}
                             <Achievements isAuth={isAuth} />
 
-                            {/* 経歴・スキル */}
+                            {/* 経歴・資格 */}
                             <div className="mt-6 grid grid-cols-2 max-md:grid-cols-1 gap-4 max-md:text-sm">
                                 {[
                                     { key: 'history', title: '経歴' },
-                                    { key: 'skill', title: 'スキル' },
+                                    { key: 'skill', title: '資格' },
                                 ].map(({ key, title }) => (
                                     <div key={key} className="rounded-2xl border border-gray-200 p-6 max-md:p-5">
                                         <div className="flex items-start justify-between gap-2">
@@ -176,8 +176,8 @@ const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
                                 </EditPanel>
                             )}
                             {isEditing('skill') && (
-                                <EditPanel title="スキルを編集" onClose={() => setEditing(null)} className="mt-4">
-                                    <MarkdownField label="スキル（Markdown）" value={profile.skill} onChange={update('skill')} hint="1行に1項目。行の終わりで改行されます。" />
+                                <EditPanel title="資格を編集" onClose={() => setEditing(null)} className="mt-4">
+                                    <MarkdownField label="資格（Markdown）" value={profile.skill} onChange={update('skill')} hint="1行に1項目。行の終わりで改行されます。" />
                                 </EditPanel>
                             )}
 
