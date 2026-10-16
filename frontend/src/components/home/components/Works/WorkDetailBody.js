@@ -53,9 +53,9 @@ const WorkDetailBody = ({ work, selectedImage, setSelectedImage, onZoom, imageVe
                         ].map((section) => (
                             <div key={section.key} className={`px-4 max-lg:px-3 py-2 max-lg:py-2 ${section.border} border-4 mb-3 last:mb-0`}>
                                 <div className="flex items-start justify-between gap-2">
-                                    <div className="text-xl max-lg:text-lg font-bold">
+                                    <h3 className="text-xl max-lg:text-lg font-bold">
                                         {section.title} {section.number && <span className="font-normal">{section.number}</span>}
-                                    </div>
+                                    </h3>
                                     {editButton(section.key)}
                                 </div>
                                 <div className="ml-2" dangerouslySetInnerHTML={{ __html: section.html }} />

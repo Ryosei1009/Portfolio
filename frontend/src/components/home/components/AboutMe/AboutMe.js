@@ -97,9 +97,9 @@ const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
         <>
             <div id="about" className="flex justify-center my-24 scroll-mt-16">
                 <div className="text-black w-full max-w-5xl mx-16 max-xl:mx-8 max-lg:mx-4 flex flex-col justify-center">
-                    <div className="text-5xl max-sm:text-4xl font-bold mb-4 max-md:mb-0">
+                    <h2 className="text-5xl max-sm:text-4xl font-bold mb-4 max-md:mb-0">
                         About Me<span className="ml-4 text-xl">自己紹介</span>
-                    </div>
+                    </h2>
                     {profile && (
                         <>
                             {/* 要約 */}
@@ -163,7 +163,7 @@ const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
                                 ].map(({ key, title }) => (
                                     <div key={key} className="rounded-2xl border border-gray-200 p-6 max-md:p-5">
                                         <div className="flex items-start justify-between gap-2">
-                                            <h4>{title}</h4>
+                                            <h3 className="text-xl max-md:text-lg max-sm:text-base">{title}</h3>
                                             {isAuth && <EditButton isOpen={editing === key} onClick={() => toggle(key)} />}
                                         </div>
                                         <div className="mt-2 ml-2" dangerouslySetInnerHTML={markedText(profile[key])} />

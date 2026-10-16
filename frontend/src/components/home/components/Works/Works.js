@@ -173,7 +173,7 @@ const Works = ({ isAuth, onLoaded }) => {
                 <div className="flex justify-center">
                     <div className="max-w-5xl mx-16 max-xl:mx-8 max-lg:mx-4 w-full">
                         <div className="text-5xl max-sm:text-4xl font-bold mb-4 max-md:mb-0 flex flex-wrap justify-between items-end gap-3">
-                            <div>Works<span className="ml-4 text-xl">これまでしてきたこと</span></div>
+                            <h2 className="text-5xl max-sm:text-4xl">Works<span className="ml-4 text-xl">これまでしてきたこと</span></h2>
                             {isAuth && (
                                 <div className="flex flex-wrap items-center gap-2">
                                     <SaveStatus status={categoryStatus} onRetry={flushCategories} />
@@ -206,9 +206,9 @@ const Works = ({ isAuth, onLoaded }) => {
                         {featuredWorks.length > 0 && (
                             <>
                                 <div className="mt-6 flex">
-                                    <div className="text-xl font-bold bg-gray-900 px-4 py-1 rounded-lg text-white">
+                                    <h3 className="text-xl font-bold bg-gray-900 px-4 py-1 rounded-lg text-white">
                                         代表作
-                                    </div>
+                                    </h3>
                                 </div>
                                 <div className="mt-6 grid grid-cols-3 max-md:grid-cols-1 gap-6 text-black font-bold">
                                     {featuredWorks.map((item, index) => (
@@ -222,9 +222,9 @@ const Works = ({ isAuth, onLoaded }) => {
                         {worksByCategory.filter(({ items }) => items.length > 0).map(({ key, category, items }) => (
                             <React.Fragment key={key}>
                                 <div className="mt-12 flex">
-                                    <div className="text-xl font-bold bg-blue-500 px-4 py-1 rounded-lg text-white">
+                                    <h3 className="text-xl font-bold bg-blue-500 px-4 py-1 rounded-lg text-white">
                                         {category}
-                                    </div>
+                                    </h3>
                                 </div>
                                 <div className="mt-6 grid grid-cols-4 max-lg:grid-cols-3 max-md:grid-cols-2 gap-4 max-sm:gap-3 text-black font-bold">
                                     {items.map((item, index) => (
