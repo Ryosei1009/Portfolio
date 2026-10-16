@@ -1,6 +1,6 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import ImageModal from './ImageModal';
 import WorkDetailBody from './WorkDetailBody';
 import WorkDetailEditor from './WorkDetailEditor';
@@ -8,9 +8,19 @@ import WorkDetailEditor from './WorkDetailEditor';
 // onAfterClose: 閉じるアニメーションが終わった後に呼ぶ（開く前に押したカードにフォーカスを戻すため）
 const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, orderedWorks, isAuth, setWorks, imageVersions, onImageUploaded, onAfterClose }) => {
     const closeRef = useRef(null)
+    // 拡大を閉じた後にフォーカスを戻す先（拡大ボタン）
+    const zoomReturnRef = useRef(null)
+    // Headless UI は、拡大（中の Dialog）を閉じると initialFocus にフォーカスを移し直す。
+    // 開いたときは ×、拡大を閉じた後は拡大ボタンに移るように、その時の移し先を返す
+    const initialFocusRef = useMemo(() => ({
+        get current() {
+            return zoomReturnRef.current?.isConnected ? zoomReturnRef.current : closeRef.current
+        },
+    }), [])
     const [selectedImage, setSelectedImage] = useState(1);
     const [isOpen, setIsOpen] = useState(false)
     const handleClose = () => {
+        zoomReturnRef.current = null
         setModalIsOpen(false)
         setTimeout(() => {
             setSelectedImage(1)
@@ -40,13 +50,17 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, 
         }
     }, [selectedWork, setSelectedWork, orderedWorks, modalIsOpen, isAuth, isOpen]);
 
-    const zoom = () => setIsOpen(true)
+    // returnTo: 拡大を閉じた後にフォーカスを戻す要素
+    const zoom = (returnTo = null) => {
+        zoomReturnRef.current = returnTo
+        setIsOpen(true)
+    }
     const imageVersion = imageVersions?.[selectedWork?.id]
 
     return (
         <Transition appear show={modalIsOpen} as={Fragment} afterLeave={onAfterClose}>
             {/* 開いたら閉じるボタンにフォーカスを移す */}
-            <Dialog as="div" className="relative z-10" initialFocus={closeRef} onClose={() => !isOpen && handleClose()}>
+            <Dialog as="div" className="relative z-10" initialFocus={initialFocusRef} onClose={() => !isOpen && handleClose()}>
                 <Transition.Child
                     as={Fragment}
                     enter="ease-out duration-300"

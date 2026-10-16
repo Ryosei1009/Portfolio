@@ -1,6 +1,6 @@
 import { Dialog } from '@headlessui/react'
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid'
-import React from 'react'
+import { ChevronLeftIcon, ChevronRightIcon, MagnifyingGlassPlusIcon } from '@heroicons/react/24/solid'
+import React, { useRef } from 'react'
 import { workImageAlt } from '../../../../utils/TextUtil'
 import { showFallbackImage, workImageUrl } from './workImage'
 
@@ -12,6 +12,9 @@ const DEVICE_NUMBERS = ['①', '②', '③', '④', '⑤']
 // key: 'title' | 'link' | 'purpose' | 'outlook' | 'device'
 const WorkDetailBody = ({ work, selectedImage, setSelectedImage, onZoom, imageVersion, imageSlot = null, editButton = () => null, editPanel = () => null }) => {
     const image = selectedImage || 1
+    const zoomButtonRef = useRef(null)
+    // 画像を押しても拡大ボタンを押しても、拡大を閉じた後は拡大ボタンにフォーカスを戻す
+    const zoom = () => onZoom(zoomButtonRef.current)
     const device = work[`device_${image}`] || work.device_1
 
     return (
@@ -37,9 +40,21 @@ const WorkDetailBody = ({ work, selectedImage, setSelectedImage, onZoom, imageVe
             {editPanel('link')}
             <div className="flex max-lg:flex-col mt-8 max-lg:mt-4 items-center w-full">
                 <div className="flex flex-col items-center w-11/24 max-lg:w-full mr-4 max-xl:mr-4 max-lg:mr-0">
-                    <img onClick={onZoom} className="w-45/48 cursor-pointer hover:opacity-80"
-                        src={workImageUrl(work.id, `${image}.jpg`, imageVersion)}
-                        alt={workImageAlt(work, image)} loading="lazy" onError={showFallbackImage} />
+                    {/* 画像のクリックでも、右下のボタンでも拡大できる */}
+                    <div className="relative w-45/48">
+                        <img onClick={zoom} className="w-full cursor-pointer hover:opacity-80"
+                            src={workImageUrl(work.id, `${image}.jpg`, imageVersion)}
+                            alt={workImageAlt(work, image)} loading="lazy" onError={showFallbackImage} />
+                        <button
+                            ref={zoomButtonRef}
+                            type="button"
+                            onClick={zoom}
+                            aria-label="画像を拡大"
+                            className="absolute bottom-2 right-2 flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-gray-900 shadow hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
+                        >
+                            <MagnifyingGlassPlusIcon className="h-6 w-6" aria-hidden="true" />
+                        </button>
+                    </div>
                     <div className="mt-6 max-md:mt-4 px-2 flex justify-between">
                         {/* 押せる範囲は before で 44px 四方以上に広げる（画像の大きさと並びは変えない） */}
                         {[1, 2, 3, 4, 5].map((item) => (
