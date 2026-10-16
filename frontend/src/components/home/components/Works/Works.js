@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import axios from 'axios';
+import { useSearchParams } from 'react-router-dom';
 import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from '@heroicons/react/24/solid';
 import EachWork from './EachWork';
 import CreateWorkModal from '../CreateWork/CreateWorkModal';
@@ -81,6 +82,9 @@ const Works = ({ isAuth, onLoaded }) => {
     // DB に保存済みの並び順（id → sort_order）。変わった作品の分だけを送るために使う
     const savedOrder = useRef(new Map())
     const openerRef = useRef(null)
+    const [searchParams, setSearchParams] = useSearchParams()
+    // ?work=<id> で来たときに、まだ開いていない作品の id（自分で作品を開いたら取り消す）
+    const pendingWorkId = useRef(searchParams.get('work'))
     const saveOrder = async (orders) => {
         const changed = orders.filter((item) => savedOrder.current.get(item.id) !== item.sort_order)
         if (changed.length === 0) return
@@ -134,6 +138,28 @@ const Works = ({ isAuth, onLoaded }) => {
     const orderedWorks = [...featuredWorks, ...worksByCategory.flatMap(({ items }) => items)]
     const settingsWork = works?.find((item) => item.id === settingsWorkId)
 
+    // 作品ごとの URL（?work=<id>）。開く・← → で移るときに置き換え、閉じたら消す（履歴は増やさない）
+    const openWorkId = modalIsOpen && selectedWork?.id != null ? selectedWork.id : null
+    const wasOpen = useRef(false)
+    useEffect(() => {
+        if (openWorkId === null && !wasOpen.current) return
+        wasOpen.current = openWorkId !== null
+        setSearchParams((prev) => {
+            const next = new URLSearchParams(prev)
+            if (openWorkId === null) next.delete('work')
+            else next.set('work', openWorkId)
+            return next
+        }, { replace: true })
+    }, [openWorkId])
+
+    // ?work=<id> で来たときは、作品を読み込んだ後にその作品を開く。表示されない id なら何もしない
+    // （管理者かどうかの確認は後から終わるので、非公開の作品が表示されるまで待つ）
+    useEffect(() => {
+        if (!pendingWorkId.current || !works) return
+        const work = visibleWorks.find((item) => String(item.id) === pendingWorkId.current)
+        if (work) handleModal(work)
+    }, [works, isAuth])
+
     // 同じ欄（代表作・カテゴリ）の中で、隣の作品と入れ替える
     // 欄の中の番号に重なりが無ければ2作品の番号を入れ替えるだけにし、重なりがあるときだけ欄の番号を振り直す
     const moveWork = (group, index, delta) => {
@@ -166,6 +192,7 @@ const Works = ({ isAuth, onLoaded }) => {
     // opener: 押したカード。詳細を閉じたら、そこへフォーカスを戻す（← → で別の作品に移っても、最初に押したカードへ戻す）
     const handleModal = (work, opener = null) => {
         openerRef.current = opener
+        pendingWorkId.current = null
         setSelectedWork(work);
         setModalIsOpen(true)
     }
