@@ -54,31 +54,35 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, 
                 >
                     <div className="fixed inset-0 bg-black/50" />
                 </Transition.Child>
-                <div className="fixed inset-0 overflow-scroll scroll-hidden flex justify-center my-8">
-                    <div className="transition-opacity w-2/3 max-2xl:w-4/5 max-lg:w-3/5 max-md:w-4/5 max-sm:w-11/12 outline-none">
-                        <Transition.Child
-                            as={Fragment}
-                            enter="ease-out duration-300"
-                            enterFrom="opacity-0 scale-95"
-                            enterTo="opacity-100 scale-100"
-                            leave="ease-in duration-200"
-                            leaveFrom="opacity-100 scale-100"
-                            leaveTo="opacity-0 scale-95"
-                        >
-                            {selectedWork && (
-                                <div className="relative rounded-xl border-8 border-main">
-                                    <div className="absolute inset-0 bg-white rounded-md"></div>
-                                    <Dialog.Panel className="relative scroll-hidden px-10 max-lg:px-4 py-12 max-lg:py-5 overflow-y-auto max-h-[80vh] flex flex-col items-center">
-                                        {isAuth ? (
-                                            // 作品ごとに作り直して、前の作品の未保存分は閉じるときに保存する
-                                            <WorkDetailEditor key={selectedWork.id} work={selectedWork} selectedImage={selectedImage} setSelectedImage={setSelectedImage} onZoom={zoom} setWorks={setWorks} imageVersion={imageVersion} onImageUploaded={() => onImageUploaded(selectedWork.id)} />
-                                        ) : (
-                                            <WorkDetailBody work={selectedWork} selectedImage={selectedImage} setSelectedImage={setSelectedImage} onZoom={zoom} imageVersion={imageVersion} />
-                                        )}
-                                    </Dialog.Panel>
-                                </div>
-                            )}
-                        </Transition.Child>
+                {/* スクロールするのは外側の箱だけにする（パネルの中でスクロールさせると、
+                    iPhone では読み終わった後のスクロールが背景のページに伝わってしまうため） */}
+                <div className="fixed inset-0 overflow-y-auto overscroll-contain scroll-hidden">
+                    <div className="flex min-h-full items-start justify-center py-8">
+                        <div className="transition-opacity w-2/3 max-2xl:w-4/5 max-lg:w-3/5 max-md:w-4/5 max-sm:w-11/12 outline-none">
+                            <Transition.Child
+                                as={Fragment}
+                                enter="ease-out duration-300"
+                                enterFrom="opacity-0 scale-95"
+                                enterTo="opacity-100 scale-100"
+                                leave="ease-in duration-200"
+                                leaveFrom="opacity-100 scale-100"
+                                leaveTo="opacity-0 scale-95"
+                            >
+                                {selectedWork && (
+                                    <div className="relative rounded-xl border-8 border-main">
+                                        <div className="absolute inset-0 bg-white rounded-md"></div>
+                                        <Dialog.Panel className="relative px-10 max-lg:px-4 py-12 max-lg:py-5 flex flex-col items-center">
+                                            {isAuth ? (
+                                                // 作品ごとに作り直して、前の作品の未保存分は閉じるときに保存する
+                                                <WorkDetailEditor key={selectedWork.id} work={selectedWork} selectedImage={selectedImage} setSelectedImage={setSelectedImage} onZoom={zoom} setWorks={setWorks} imageVersion={imageVersion} onImageUploaded={() => onImageUploaded(selectedWork.id)} />
+                                            ) : (
+                                                <WorkDetailBody work={selectedWork} selectedImage={selectedImage} setSelectedImage={setSelectedImage} onZoom={zoom} imageVersion={imageVersion} />
+                                            )}
+                                        </Dialog.Panel>
+                                    </div>
+                                )}
+                            </Transition.Child>
+                        </div>
                     </div>
                 </div>
                 <ImageModal isOpen={isOpen} setIsOpen={setIsOpen} selectedImage={selectedImage} selectedWork={selectedWork} imageVersion={imageVersion} />

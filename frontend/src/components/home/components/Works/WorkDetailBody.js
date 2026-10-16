@@ -45,7 +45,7 @@ const WorkDetailBody = ({ work, selectedImage, setSelectedImage, onZoom, imageVe
                     {imageSlot}
                 </div>
                 <div className="h-full w-13/24 max-lg:w-full text-start max-lg:border-t-2 mt-4">
-                    <div className="flex flex-col text-sm max-xl:text-xs max-lg:h-full overflow-y-scroll h-96 scroll-hidden">
+                    <div className="flex flex-col text-sm max-xl:text-xs max-lg:h-full overflow-y-scroll overscroll-contain h-96 scroll-hidden">
                         {[
                             { key: 'purpose', title: '目的', border: 'border-orange-500', html: work.purpose },
                             { key: 'outlook', title: '展望', border: 'border-blue-200', html: work.outlook },
