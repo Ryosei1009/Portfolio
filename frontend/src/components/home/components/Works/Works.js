@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from '@heroicons/react/24/solid';
 import EachWork from './EachWork';
 import CreateWorkModal from '../CreateWork/CreateWorkModal';
-import { workImageAlt } from '../../../../utils/TextUtil';
+import { plainText, workImageAlt } from '../../../../utils/TextUtil';
 import { showFallbackImage, workImageUrl } from './workImage';
 import WorkSettingsDialog from './WorkSettingsDialog';
 import { EditButton } from '../../../_utils/EditControls';
@@ -291,7 +291,13 @@ const WorkCard = ({ item, imageVersion, size, isAuth, onOpen, onOpenSettings, on
             onOpen(item, event.currentTarget)
         }
     }
-    const buttonProps = { role: 'button', tabIndex: 0, onClick: (event) => onOpen(item, event.currentTarget), onKeyDown: handleKeyDown }
+    const buttonProps = {
+        role: 'button',
+        tabIndex: 0,
+        'aria-label': `${plainText(item.each_name) || '作品'}の詳細を開く`,
+        onClick: (event) => onOpen(item, event.currentTarget),
+        onKeyDown: handleKeyDown,
+    }
 
     // 管理者はカードの中に「設定」ボタンがあるので、画像だけを詳細を開くボタンにする
     return (
