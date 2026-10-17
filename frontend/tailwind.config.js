@@ -3,6 +3,8 @@ const defaultTheme = require('tailwindcss/defaultTheme')
 module.exports = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
+    // ビルド時に index.html へ入れる静的な HTML（scripts/prerender.mjs）のクラスも作る
+    "./scripts/prerender.mjs",
   ],
   theme: {
     extend: {
