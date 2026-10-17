@@ -134,8 +134,10 @@ const Works = ({ isAuth, onLoaded }) => {
     if (isAuth && uncategorized.length > 0) worksByCategory.push({ key: 'uncategorized', category: '未分類', items: uncategorized })
     const workCounts = Object.fromEntries(categoryItems.map((category) => [category.key, works?.filter((item) => item.category === savedNames[category.key]).length ?? 0]))
 
+    // 代表作以外を、カテゴリの順 → sort_order で並べたもの
+    const otherWorksInOrder = worksByCategory.flatMap(({ items }) => items)
     // 画面に並んでいる順（詳細モーダルの ← → 移動で使う）
-    const orderedWorks = [...featuredWorks, ...worksByCategory.flatMap(({ items }) => items)]
+    const orderedWorks = [...featuredWorks, ...otherWorksInOrder]
     const settingsWork = works?.find((item) => item.id === settingsWorkId)
 
     // 作品ごとの URL（?work=<id>）。開く・← → で移るときに置き換え、閉じたら消す（履歴は増やさない）
@@ -252,21 +254,39 @@ const Works = ({ isAuth, onLoaded }) => {
                             </>
                         )}
 
-                        {/* その他（カテゴリごと） */}
-                        {worksByCategory.filter(({ items }) => items.length > 0).map(({ key, category, items }) => (
-                            <React.Fragment key={key}>
-                                <div className="mt-12 flex">
-                                    <h3 className="text-xl font-bold bg-blue-500 px-4 py-1 rounded-lg text-white">
-                                        {category}
-                                    </h3>
-                                </div>
-                                <div className="mt-6 grid grid-cols-4 max-lg:grid-cols-3 max-md:grid-cols-2 gap-4 max-sm:gap-3 text-black font-bold">
-                                    {items.map((item, index) => (
-                                        <WorkCard key={item.id} item={item} imageVersion={imageVersions[item.id]} size="small" isAuth={isAuth} onOpen={handleModal} onOpenSettings={setSettingsWorkId} onMove={(delta) => moveWork(items, index, delta)} isFirst={index === 0} isLast={index === items.length - 1} />
-                                    ))}
-                                </div>
-                            </React.Fragment>
-                        ))}
+                        {isAuth ? (
+                            // 管理者: カテゴリの編集と並び替えができるように、カテゴリごとに分けて表示する
+                            worksByCategory.filter(({ items }) => items.length > 0).map(({ key, category, items }) => (
+                                <React.Fragment key={key}>
+                                    <div className="mt-12 flex">
+                                        <h3 className="text-xl font-bold bg-blue-500 px-4 py-1 rounded-lg text-white">
+                                            {category}
+                                        </h3>
+                                    </div>
+                                    <div className="mt-6 grid grid-cols-4 max-lg:grid-cols-3 max-md:grid-cols-2 gap-4 max-sm:gap-3 text-black font-bold">
+                                        {items.map((item, index) => (
+                                            <WorkCard key={item.id} item={item} imageVersion={imageVersions[item.id]} size="small" isAuth={isAuth} onOpen={handleModal} onOpenSettings={setSettingsWorkId} onMove={(delta) => moveWork(items, index, delta)} isFirst={index === 0} isLast={index === items.length - 1} />
+                                        ))}
+                                    </div>
+                                </React.Fragment>
+                            ))
+                        ) : (
+                            // 公開画面: 代表作以外は1つのグリッドにまとめ、カードにカテゴリのタグを出す（並びはカテゴリの順 → sort_order）
+                            otherWorksInOrder.length > 0 && (
+                                <>
+                                    <div className="mt-12 flex">
+                                        <h3 className="text-xl font-bold bg-blue-500 px-4 py-1 rounded-lg text-white">
+                                            その他の活動
+                                        </h3>
+                                    </div>
+                                    <div className="mt-6 grid grid-cols-4 max-lg:grid-cols-3 max-md:grid-cols-2 gap-4 max-sm:gap-3 text-black font-bold">
+                                        {otherWorksInOrder.map((item) => (
+                                            <WorkCard key={item.id} item={item} imageVersion={imageVersions[item.id]} size="small" isAuth={isAuth} onOpen={handleModal} categoryTag={item.category} />
+                                        ))}
+                                    </div>
+                                </>
+                            )
+                        )}
                     </div>
                 </div>
             </div>
@@ -283,7 +303,8 @@ const Works = ({ isAuth, onLoaded }) => {
 
 export default Works
 
-const WorkCard = ({ item, imageVersion, size, isAuth, onOpen, onOpenSettings, onMove, isFirst, isLast }) => {
+// categoryTag: 画像の左上に出すカテゴリ名（公開画面の「その他の活動」で使う）
+const WorkCard = ({ item, imageVersion, size, isAuth, onOpen, onOpenSettings, onMove, isFirst, isLast, categoryTag = null }) => {
     const isLarge = size === 'large'
     const handleKeyDown = (event) => {
         if (event.key === 'Enter' || event.key === ' ') {
@@ -306,11 +327,14 @@ const WorkCard = ({ item, imageVersion, size, isAuth, onOpen, onOpenSettings, on
             className={`group flex flex-col overflow-hidden rounded-xl bg-white shadow-md hover:shadow-xl transition-shadow ${isAuth ? '' : 'cursor-pointer'} focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900`}
         >
             <div {...(isAuth ? buttonProps : {})} className="relative aspect-video overflow-hidden cursor-pointer">
-                {Number(item.is_published) === 0 && (
-                    <div className="absolute left-2 top-2 z-[1] rounded-md bg-gray-900/80 px-2 py-0.5 text-xs font-bold text-white">
-                        非公開
-                    </div>
-                )}
+                <div className="absolute left-2 top-2 z-[1] flex flex-wrap gap-1 text-xs font-bold text-white">
+                    {categoryTag && (
+                        <span className="rounded-md bg-blue-600 px-2 py-0.5">{categoryTag}</span>
+                    )}
+                    {Number(item.is_published) === 0 && (
+                        <span className="rounded-md bg-gray-900/80 px-2 py-0.5">非公開</span>
+                    )}
+                </div>
                 <img
                     src={workImageUrl(item.id, '1_mid.jpg', imageVersion)} alt={workImageAlt(item, 1)}
                     onError={showFallbackImage}
