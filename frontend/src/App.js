@@ -13,6 +13,8 @@ function App() {
   // 管理者が公開画面と同じ表示で確認するとき true
   const [isPreview, setIsPreview] = useState(false)
   const isEditing = isAuth && !isPreview
+  // About Me の内容（ヒーローとフッターでも使う）。About Me を読み込むまでは undefined
+  const [profile, setProfile] = useState()
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (!token) return
@@ -50,11 +52,11 @@ function App() {
     <div className={isAuth ? 'pb-24' : ''}>
       <Header />
       <Routes>
-        <Route path="/" element={<Home isAuth={isEditing} />} />
+        <Route path="/" element={<Home isAuth={isEditing} profile={profile} onProfileChange={setProfile} />} />
         <Route path="/auth" element={<Auth isAuth={isAuth} setIsAuth={setIsAuth} onLogout={logout} />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <Footer />
+      <Footer profile={profile} />
       {isAuth && <EditModeBar isPreview={isPreview} setIsPreview={setIsPreview} onLogout={logout} />}
     </div>
   );
