@@ -4,7 +4,7 @@ const { db } = require('../db');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const path = require('path');
-const { receiveImage, writeJpegs } = require('../utils/imageUpload');
+const { receiveImage, writeImages } = require('../utils/imageUpload');
 const JWT_SECRET = process.env.JWT_SECRET;
 
 router.get('/get', (req, res) => {
@@ -51,7 +51,7 @@ router.post('/update_image', (req, res) => {
             try {
                 const dir = path.join('images', 'aboutme');
                 await fs.promises.mkdir(dir, { recursive: true });
-                await writeJpegs(req.file.buffer, [
+                await writeImages(req.file.buffer, [
                     { file: path.join(dir, 'profile.jpg'), resize: { width: 800, height: 800, fit: 'cover' } },
                 ]);
                 const base = process.env.PUBLIC_API_URL || `${req.protocol}://${req.get('host')}`;

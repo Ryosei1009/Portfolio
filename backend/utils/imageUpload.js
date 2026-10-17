@@ -1,7 +1,7 @@
 const multer = require('multer');
 const fs = require('fs');
 
-// 管理者がアップロードした画像を受け取り、JPEG に変換して保存する（作品画像・プロフィール写真で共通）
+// 管理者がアップロードした画像を受け取り、JPEG と WebP に変換して保存する（作品画像・プロフィール写真で共通）
 
 // sharp は Node.js 20.9 以上が必要。読み込めなくてもサーバー自体は起動させ、画像のアップロードだけを止める
 let sharp = null;
@@ -31,23 +31,32 @@ const receiveImage = (req, res, next) => {
     });
 };
 
-// outputs: [{ file: 保存先, resize: sharp の resize の指定 }]
+// JPEG の保存先（〜.jpg）と同じ場所・同じ名前の WebP（〜.webp）
+const webpPath = (jpegFile) => jpegFile.replace(/\.jpe?g$/i, '.webp');
+
+// outputs: [{ file: JPEG の保存先（〜.jpg）, resize: sharp の resize の指定 }]
+// それぞれ JPEG と、同じ大きさの WebP を作る（画面では WebP を使い、読めないときは JPEG を使う）
 // すべて作れてから差し替えるので、途中で失敗しても元の画像が中途半端に残らない
-const writeJpegs = async (buffer, outputs) => {
+const writeImages = async (buffer, outputs) => {
     const image = sharp(buffer).rotate();
+    const files = outputs.flatMap(({ file }) => [file, webpPath(file)]);
     try {
-        await Promise.all(outputs.map(({ file, resize }) => (
+        await Promise.all(outputs.flatMap(({ file, resize }) => [
             image.clone()
                 .resize(resize)
                 .jpeg({ quality: 82, mozjpeg: true })
-                .toFile(`${file}.tmp`)
-        )));
+                .toFile(`${file}.tmp`),
+            image.clone()
+                .resize(resize)
+                .webp({ quality: 80 })
+                .toFile(`${webpPath(file)}.tmp`),
+        ]));
     } catch (error) {
         // 作りかけのファイルは消しておく
-        await Promise.all(outputs.map(({ file }) => fs.promises.rm(`${file}.tmp`, { force: true })));
+        await Promise.all(files.map((file) => fs.promises.rm(`${file}.tmp`, { force: true })));
         throw error;
     }
-    await Promise.all(outputs.map(({ file }) => fs.promises.rename(`${file}.tmp`, file)));
+    await Promise.all(files.map((file) => fs.promises.rename(`${file}.tmp`, file)));
 };
 
-module.exports = { receiveImage, writeJpegs };
+module.exports = { receiveImage, writeImages, webpPath };
