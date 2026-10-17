@@ -2,7 +2,7 @@ import { Dialog } from '@headlessui/react'
 import { ChevronLeftIcon, ChevronRightIcon, MagnifyingGlassPlusIcon } from '@heroicons/react/24/solid'
 import React, { useRef } from 'react'
 import { workImageAlt } from '../../../../utils/TextUtil'
-import { showFallbackImage, workImageUrl } from './workImage'
+import { WorkPicture } from './workImage'
 
 const DEVICE_NUMBERS = ['①', '②', '③', '④', '⑤']
 
@@ -42,9 +42,9 @@ const WorkDetailBody = ({ work, selectedImage, setSelectedImage, onZoom, imageVe
                 <div className="flex flex-col items-center w-11/24 max-lg:w-full mr-4 max-xl:mr-4 max-lg:mr-0">
                     {/* 画像のクリックでも、右下のボタンでも拡大できる */}
                     <div className="relative w-45/48">
-                        <img onClick={zoom} className="w-full cursor-pointer hover:opacity-80"
-                            src={workImageUrl(work.id, `${image}.jpg`, imageVersion)}
-                            alt={workImageAlt(work, image)} loading="lazy" onError={showFallbackImage} />
+                        <WorkPicture onClick={zoom} className="w-full cursor-pointer hover:opacity-80"
+                            workId={work.id} file={`${image}.jpg`} version={imageVersion}
+                            alt={workImageAlt(work, image)} loading="lazy" />
                         <button
                             ref={zoomButtonRef}
                             type="button"
@@ -65,7 +65,7 @@ const WorkDetailBody = ({ work, selectedImage, setSelectedImage, onZoom, imageVe
                                 aria-pressed={image === item}
                                 className="group relative w-1/6 before:absolute before:left-1/2 before:top-1/2 before:h-full before:min-h-11 before:w-full before:min-w-11 before:-translate-x-1/2 before:-translate-y-1/2 before:content-[''] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
                             >
-                                <img className="w-full group-hover:opacity-80 group-hover:scale-110" src={workImageUrl(work.id, `${item}_small.jpg`, imageVersion)} alt={workImageAlt(work, item)} loading="lazy" onError={showFallbackImage} />
+                                <WorkPicture className="w-full group-hover:opacity-80 group-hover:scale-110" workId={work.id} file={`${item}_small.jpg`} version={imageVersion} alt={workImageAlt(work, item)} loading="lazy" />
                             </button>
                         ))}
                     </div>

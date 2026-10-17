@@ -5,7 +5,7 @@ import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from '@heroicons/react/24
 import EachWork from './EachWork';
 import CreateWorkModal from '../CreateWork/CreateWorkModal';
 import { plainText, workImageAlt } from '../../../../utils/TextUtil';
-import { showFallbackImage, workImageUrl } from './workImage';
+import { WorkPicture } from './workImage';
 import WorkSettingsDialog from './WorkSettingsDialog';
 import { EditButton } from '../../../_utils/EditControls';
 import { useAutoSave } from '../../../../utils/useAutoSave';
@@ -346,9 +346,8 @@ const WorkCard = ({ item, imageVersion, size, isAuth, onOpen, onOpenSettings, on
                         <span className="rounded-md bg-gray-900/80 px-2 py-0.5">非公開</span>
                     )}
                 </div>
-                <img
-                    src={workImageUrl(item.id, '1_mid.jpg', imageVersion)} alt={workImageAlt(item, 1)}
-                    onError={showFallbackImage}
+                <WorkPicture
+                    workId={item.id} file="1_mid.jpg" version={imageVersion} alt={workImageAlt(item, 1)}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
                 />
