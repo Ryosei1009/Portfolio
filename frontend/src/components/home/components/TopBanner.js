@@ -97,7 +97,11 @@ const TopBanner = ({ isAuth, profile }) => {
           </div>
         </div>
         <div className="w-1/2 pr-16 max-md:w-3/4 max-md:-mr-6 max-lg:pr-4">
-          <img className="w-full h-auto" src="/images/home/mv.png" width="750" height="692" alt={settings.hero_image_alt} />
+          {/* WebP が使えないブラウザでは PNG を使う（mv.webp は scripts/optimize-images.mjs で作る） */}
+          <picture>
+            <source srcSet="/images/home/mv.webp" type="image/webp" />
+            <img className="w-full h-auto" src="/images/home/mv.png" width="750" height="692" alt={settings.hero_image_alt} />
+          </picture>
         </div>
       </div>
       {isAuth && isEditing && (
