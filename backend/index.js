@@ -10,6 +10,11 @@ const PORT = process.env.PORT;
 
 app.use(cors());
 app.use(express.json());
+
+// 工具管理システム（https://api.shinoryo.com/tool/）
+// 下の allowedOrigins のチェックより前に置く（許可外のオリジンだと応答が止まるため）
+app.use('/tool', require('./tool_management/backend/router'));
+
 app.use(`/images`, express.static(`images`));
 
 // KEY_PATH / CERT_PATH が無いとき（ローカル確認用）は HTTP で起動する
