@@ -6,6 +6,7 @@ import { markedText } from '../../../../utils/TextUtil'
 import { useAutoSave } from '../../../../utils/useAutoSave'
 import { EditButton, EditPanel, MarkdownField, TextField } from '../../../_utils/EditControls'
 import ImageUploadButton from '../../../_utils/ImageUploadButton'
+import LoadStatus from '../../../_utils/LoadStatus'
 import Achievements from './Achievements'
 
 // introduction を「### はじめに」の手前で「概要」と「詳細」に分ける
@@ -48,6 +49,8 @@ const IntroductionPreview = ({ introduction }) => {
 const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
     const [iconOpen, setIconOpen] = useState(false)
     const [profile, setProfile] = useState()
+    // 読み込みの状態（'loading' | 'error' | 'done'）
+    const [loadStatus, setLoadStatus] = useState('loading')
     const [detailOpen, setDetailOpen] = useState(false)
     const detailToggleRef = useRef(null)
     // 開いている編集欄（'profile' | 'introduction-top' | 'introduction-detail' | 'history' | 'skill'）
@@ -55,20 +58,27 @@ const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
 
     const { reset } = useAutoSave(profile, saveAboutMe)
 
-    useEffect(() => {
-        async function fetchAboutMe() {
-            try {
-                const response = await fetch(`${process.env.REACT_APP_API_DOMAIN}/aboutme/get`);
-                const data = await response.json();
-                // 読み込んだ値は保存済みとして扱う
-                reset(data[0])
-                setProfile(data[0]);
-            } catch (error) {
-                console.error('Error fetching new item list:', error);
-            } finally {
-                onLoaded?.()
-            }
+    // 「再読み込み」でも呼ぶ
+    const fetchAboutMe = async () => {
+        setLoadStatus('loading')
+        try {
+            const response = await fetch(`${process.env.REACT_APP_API_DOMAIN}/aboutme/get`);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`)
+            const data = await response.json();
+            if (!data?.[0]) throw new Error('about_me is empty')
+            // 読み込んだ値は保存済みとして扱う
+            reset(data[0])
+            setProfile(data[0]);
+            setLoadStatus('done')
+        } catch (error) {
+            console.error('Error fetching about me:', error);
+            setLoadStatus('error')
+        } finally {
+            onLoaded?.()
         }
+    }
+
+    useEffect(() => {
         fetchAboutMe();
     }, [])
 
@@ -110,6 +120,7 @@ const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
                     <h2 className="text-5xl max-sm:text-4xl font-bold mb-4 max-md:mb-0">
                         About Me<span className="ml-4 text-xl">自己紹介</span>
                     </h2>
+                    <LoadStatus status={loadStatus} onRetry={fetchAboutMe} className="mt-6" />
                     {profile && (
                         <>
                             {/* 要約 */}

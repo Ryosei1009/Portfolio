@@ -10,6 +10,7 @@ import WorkSettingsDialog from './WorkSettingsDialog';
 import { EditButton } from '../../../_utils/EditControls';
 import { useAutoSave } from '../../../../utils/useAutoSave';
 import SaveStatus from '../../../_utils/SaveStatus';
+import LoadStatus from '../../../_utils/LoadStatus';
 import CategoryEditor, { categoryProblem } from './CategoryEditor';
 
 // 並び順として保存する値（id と sort_order だけ）
@@ -33,6 +34,8 @@ const Works = ({ isAuth, onLoaded }) => {
     // 設定を編集している作品の id
     const [settingsWorkId, setSettingsWorkId] = useState(null);
     const [works, setWorks] = useState()
+    // 作品の読み込みの状態（'loading' | 'error' | 'done'）
+    const [loadStatus, setLoadStatus] = useState('loading')
 
     // カテゴリ一覧（管理者が編集できる）。savedNames は DB に保存済みの名前（key → 名前）
     // 作品は保存済みの名前で持っているので、名前を入力している間も、作品は保存済みの名前でまとめる
@@ -97,24 +100,31 @@ const Works = ({ isAuth, onLoaded }) => {
     }
     const { reset: resetOrder } = useAutoSave(order, saveOrder)
 
-    useEffect(() => {
-        async function fetchWorks() {
-            try {
-                // 管理者のトークンがあれば送る（非公開の作品も受け取るため）
-                const token = localStorage.getItem('token')
-                const response = await fetch(`${process.env.REACT_APP_API_DOMAIN}/works/get`, {
-                    headers: token ? { 'Authorization': token } : {},
-                });
-                const data = await response.json();
-                savedOrder.current = new Map(toOrder(data).map((item) => [item.id, item.sort_order]));
-                resetOrder(toOrder(data));
-                setWorks(data);
-            } catch (error) {
-                console.error('Error fetching new item list:', error);
-            } finally {
-                onLoaded?.()
-            }
+    // 「再読み込み」でも呼ぶ
+    const fetchWorks = async () => {
+        setLoadStatus('loading')
+        try {
+            // 管理者のトークンがあれば送る（非公開の作品も受け取るため）
+            const token = localStorage.getItem('token')
+            const response = await fetch(`${process.env.REACT_APP_API_DOMAIN}/works/get`, {
+                headers: token ? { 'Authorization': token } : {},
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`)
+            const data = await response.json();
+            if (!Array.isArray(data)) throw new Error('works is not an array')
+            savedOrder.current = new Map(toOrder(data).map((item) => [item.id, item.sort_order]));
+            resetOrder(toOrder(data));
+            setWorks(data);
+            setLoadStatus('done')
+        } catch (error) {
+            console.error('Error fetching works:', error);
+            setLoadStatus('error')
+        } finally {
+            onLoaded?.()
         }
+    }
+
+    useEffect(() => {
         fetchWorks();
     }, [])
 
@@ -238,6 +248,7 @@ const Works = ({ isAuth, onLoaded }) => {
                 </div>
                 <div className="flex justify-center pb-16">
                     <div className="max-w-5xl mx-16 max-xl:mx-8 max-lg:mx-4 w-full">
+                        <LoadStatus status={loadStatus} onRetry={fetchWorks} className="mt-6" />
                         {/* 代表作 */}
                         {featuredWorks.length > 0 && (
                             <>
