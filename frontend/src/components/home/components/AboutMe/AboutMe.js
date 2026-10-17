@@ -151,7 +151,7 @@ const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
                                         </>
                                     )}
                                 </div>
-                                <div className="flex-1 flex items-center">
+                                <div className="flex-1 flex-col justify-center">
                                     {isAuth && (
                                         <div className="mb-2 flex justify-end">
                                             <EditButton label="概要を編集" isOpen={editing === 'introduction-top'} onClick={() => toggle('introduction-top')} />
