@@ -2,7 +2,7 @@ import { Dialog, Transition } from '@headlessui/react'
 import React, { Fragment, useRef } from 'react'
 import { XMarkIcon } from '@heroicons/react/24/solid'
 import { workImageAlt } from '../../../../utils/TextUtil'
-import { showFallbackImage, workImageUrl } from './workImage'
+import { WorkPicture, workImageUrl } from './workImage'
 
 // 画像・動画の拡大表示（作品詳細の中で開く）
 // 閉じるときはアニメーションさせずにすぐ閉じる。閉じている途中に Esc をもう一度押すと、
@@ -49,11 +49,10 @@ const ImageModal = ({ isOpen, setIsOpen, selectedImage, selectedWork, imageVersi
                                     muted
                                 />
                             ) : (
-                                <img
+                                <WorkPicture
                                     className="w-full h-auto max-h-[85vh] bg-white object-contain"
-                                    src={workImageUrl(selectedWork.id, `${selectedImage}.jpg`, imageVersion)}
+                                    workId={selectedWork.id} file={`${selectedImage}.jpg`} version={imageVersion}
                                     alt={workImageAlt(selectedWork, selectedImage)}
-                                    onError={showFallbackImage}
                                 />
                             )}
                         </Dialog.Panel>

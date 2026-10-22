@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv, transformWithOxc } from 'vite'
 import react from '@vitejs/plugin-react'
+import { prerender } from './scripts/prerender.mjs'
 
 // Create React App からの移行用設定
 // - src 配下の .js ファイルに書かれた JSX をそのまま扱う
@@ -27,7 +28,8 @@ export default defineConfig(({ mode }) => {
   define['process.env'] = JSON.stringify({ ...env, NODE_ENV: mode === 'production' ? 'production' : 'development' })
 
   return {
-    plugins: [jsxInJs(), react()],
+    // prerender: ビルドのときだけ、API の内容を index.html の #root に入れる
+    plugins: [jsxInJs(), react(), prerender({ apiDomain: env.REACT_APP_API_DOMAIN })],
     define,
     server: {
       port: 3000,

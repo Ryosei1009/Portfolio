@@ -4,7 +4,7 @@ const { db } = require('../db');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const path = require('path');
-const { receiveImage, writeJpegs } = require('../utils/imageUpload');
+const { receiveImage, writeImages } = require('../utils/imageUpload');
 const JWT_SECRET = process.env.JWT_SECRET;
 
 // 1枚の画像から、原寸・一覧用（_mid）・サムネイル（_small）の3サイズを作る
@@ -75,7 +75,7 @@ router.post('/update_image', (req, res) => {
                 try {
                     const dir = path.join('images', 'works', String(id));
                     await fs.promises.mkdir(dir, { recursive: true });
-                    await writeJpegs(req.file.buffer, IMAGE_SIZES.map(({ suffix, width }) => ({
+                    await writeImages(req.file.buffer, IMAGE_SIZES.map(({ suffix, width }) => ({
                         file: path.join(dir, `${imageId}${suffix}.jpg`),
                         resize: { width, withoutEnlargement: true },
                     })));

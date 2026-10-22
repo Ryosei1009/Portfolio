@@ -147,7 +147,7 @@ const WorkDetailEditor = ({ work, selectedImage, setSelectedImage, onZoom, setWo
 
     return (
         <>
-            <SaveStatus status={status} onRetry={flush} className="self-end -mt-8 max-lg:-mt-2 mb-2 min-h-[1rem]" />
+            <SaveStatus status={status} onRetry={flush} className="self-end -mt-8 max-lg:-mt-2 mr-10 mb-2 min-h-[1rem]" />
             <WorkDetailBody
                 work={form}
                 selectedImage={selectedImage}

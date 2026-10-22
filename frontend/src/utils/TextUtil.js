@@ -1,5 +1,17 @@
-import { marked } from "marked";
+import { Marked, Renderer } from "marked";
 import sanitizeHtml from 'sanitize-html';
+
+// http(s) で始まる外部リンクだけ、新しいタブで開く（# や / で始まる内部リンクはそのまま）
+const markdown = new Marked({
+    breaks: true,
+    renderer: {
+        link(token) {
+            const html = Renderer.prototype.link.call(this, token)
+            if (!/^https?:\/\//i.test(token.href) || !html.startsWith('<a ')) return html
+            return html.replace('<a ', '<a target="_blank" rel="noopener noreferrer" ')
+        },
+    },
+});
 
 export const markedText = (text) => {
     const markedText = sanitizeHtml(text, {
@@ -8,10 +20,7 @@ export const markedText = (text) => {
             img: [ 'src', 'alt' ]
         }
     });
-    marked.setOptions({
-        breaks: true,
-    });
-    const htmlText = marked(markedText);
+    const htmlText = markdown.parse(markedText);
     return { __html: htmlText }
 }
 

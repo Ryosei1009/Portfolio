@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import axios from 'axios'
-import { ChevronDownIcon, EnvelopeIcon } from '@heroicons/react/24/solid'
+import { ChevronDownIcon, ChevronUpIcon, EnvelopeIcon } from '@heroicons/react/24/solid'
 import IconModal from './IconModal'
 import { markedText } from '../../../../utils/TextUtil'
 import { useAutoSave } from '../../../../utils/useAutoSave'
 import { EditButton, EditPanel, MarkdownField, TextField } from '../../../_utils/EditControls'
 import ImageUploadButton from '../../../_utils/ImageUploadButton'
+import LoadStatus from '../../../_utils/LoadStatus'
 import Achievements from './Achievements'
 
 // introduction を「### はじめに」の手前で「概要」と「詳細」に分ける
@@ -48,26 +49,36 @@ const IntroductionPreview = ({ introduction }) => {
 const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
     const [iconOpen, setIconOpen] = useState(false)
     const [profile, setProfile] = useState()
+    // 読み込みの状態（'loading' | 'error' | 'done'）
+    const [loadStatus, setLoadStatus] = useState('loading')
     const [detailOpen, setDetailOpen] = useState(false)
+    const detailToggleRef = useRef(null)
     // 開いている編集欄（'profile' | 'introduction-top' | 'introduction-detail' | 'history' | 'skill'）
     const [editing, setEditing] = useState(null)
 
     const { reset } = useAutoSave(profile, saveAboutMe)
 
-    useEffect(() => {
-        async function fetchAboutMe() {
-            try {
-                const response = await fetch(`${process.env.REACT_APP_API_DOMAIN}/aboutme/get`);
-                const data = await response.json();
-                // 読み込んだ値は保存済みとして扱う
-                reset(data[0])
-                setProfile(data[0]);
-            } catch (error) {
-                console.error('Error fetching new item list:', error);
-            } finally {
-                onLoaded?.()
-            }
+    // 「再読み込み」でも呼ぶ
+    const fetchAboutMe = async () => {
+        setLoadStatus('loading')
+        try {
+            const response = await fetch(`${process.env.REACT_APP_API_DOMAIN}/aboutme/get`);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`)
+            const data = await response.json();
+            if (!data?.[0]) throw new Error('about_me is empty')
+            // 読み込んだ値は保存済みとして扱う
+            reset(data[0])
+            setProfile(data[0]);
+            setLoadStatus('done')
+        } catch (error) {
+            console.error('Error fetching about me:', error);
+            setLoadStatus('error')
+        } finally {
+            onLoaded?.()
         }
+    }
+
+    useEffect(() => {
         fetchAboutMe();
     }, [])
 
@@ -80,6 +91,15 @@ const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
     const isEditing = (key) => isAuth && editing === key
 
     const { summary, detail } = splitIntroduction(profile?.introduction)
+
+    // 末尾の「閉じる」: 折りたたんだ後、元の「詳しく読む」ボタンの位置まで戻してフォーカスする
+    const closeDetail = () => {
+        setDetailOpen(false)
+        requestAnimationFrame(() => {
+            detailToggleRef.current?.scrollIntoView({ block: 'center' })
+            detailToggleRef.current?.focus({ preventScroll: true })
+        })
+    }
 
     const introductionPanel = (key) => isEditing(key) && (
         <EditPanel title="自己紹介の文章を編集" onClose={() => setEditing(null)} className="mt-4">
@@ -97,9 +117,10 @@ const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
         <>
             <div id="about" className="flex justify-center my-24 scroll-mt-16">
                 <div className="text-black w-full max-w-5xl mx-16 max-xl:mx-8 max-lg:mx-4 flex flex-col justify-center">
-                    <div className="text-5xl max-sm:text-4xl font-bold mb-4 max-md:mb-0">
+                    <h2 className="text-5xl max-sm:text-4xl font-bold mb-4 max-md:mb-0">
                         About Me<span className="ml-4 text-xl">自己紹介</span>
-                    </div>
+                    </h2>
+                    <LoadStatus status={loadStatus} onRetry={fetchAboutMe} className="mt-6" />
                     {profile && (
                         <>
                             {/* 要約 */}
@@ -130,13 +151,13 @@ const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
                                         </>
                                     )}
                                 </div>
-                                <div className="flex-1">
+                                <div className="flex flex-1 flex-col justify-center">
+                                    <div className="leading-relaxed max-md:text-sm" dangerouslySetInnerHTML={markedText(summary)} />
                                     {isAuth && (
                                         <div className="mb-2 flex justify-end">
                                             <EditButton label="概要を編集" isOpen={editing === 'introduction-top'} onClick={() => toggle('introduction-top')} />
                                         </div>
                                     )}
-                                    <div className="leading-relaxed max-md:text-sm" dangerouslySetInnerHTML={markedText(summary)} />
                                 </div>
                             </div>
                             {isEditing('profile') && (
@@ -155,15 +176,15 @@ const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
                             {/* 実績 */}
                             <Achievements isAuth={isAuth} />
 
-                            {/* 経歴・スキル */}
+                            {/* 経歴・資格 */}
                             <div className="mt-6 grid grid-cols-2 max-md:grid-cols-1 gap-4 max-md:text-sm">
                                 {[
                                     { key: 'history', title: '経歴' },
-                                    { key: 'skill', title: 'スキル' },
+                                    { key: 'skill', title: '資格' },
                                 ].map(({ key, title }) => (
                                     <div key={key} className="rounded-2xl border border-gray-200 p-6 max-md:p-5">
                                         <div className="flex items-start justify-between gap-2">
-                                            <h4>{title}</h4>
+                                            <h3 className="text-xl max-md:text-lg max-sm:text-base">{title}</h3>
                                             {isAuth && <EditButton isOpen={editing === key} onClick={() => toggle(key)} />}
                                         </div>
                                         <div className="mt-2 ml-2" dangerouslySetInnerHTML={markedText(profile[key])} />
@@ -176,8 +197,8 @@ const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
                                 </EditPanel>
                             )}
                             {isEditing('skill') && (
-                                <EditPanel title="スキルを編集" onClose={() => setEditing(null)} className="mt-4">
-                                    <MarkdownField label="スキル（Markdown）" value={profile.skill} onChange={update('skill')} hint="1行に1項目。行の終わりで改行されます。" />
+                                <EditPanel title="資格を編集" onClose={() => setEditing(null)} className="mt-4">
+                                    <MarkdownField label="資格（Markdown）" value={profile.skill} onChange={update('skill')} hint="1行に1項目。行の終わりで改行されます。" />
                                 </EditPanel>
                             )}
 
@@ -187,6 +208,7 @@ const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
                                     <div className="flex flex-wrap items-center justify-center gap-3">
                                         {detail && (
                                             <button
+                                                ref={detailToggleRef}
                                                 type="button"
                                                 onClick={() => setDetailOpen(!detailOpen)}
                                                 aria-expanded={detailOpen}
@@ -203,12 +225,23 @@ const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
                                     </div>
                                     {introductionPanel('introduction-detail')}
                                     {detail && (
-                                        <div
-                                            id="aboutme-detail"
-                                            hidden={!detailOpen}
-                                            className="mt-6 rounded-2xl border border-gray-200 p-8 max-md:p-5 leading-relaxed max-md:text-sm"
-                                            dangerouslySetInnerHTML={markedText(detail)}
-                                        />
+                                        <div id="aboutme-detail" hidden={!detailOpen}>
+                                            <div
+                                                className="mt-6 rounded-2xl border border-gray-200 p-8 max-md:p-5 leading-relaxed max-md:text-sm"
+                                                dangerouslySetInnerHTML={markedText(detail)}
+                                            />
+                                            <div className="mt-6 flex justify-center">
+                                                <button
+                                                    type="button"
+                                                    onClick={closeDetail}
+                                                    aria-controls="aboutme-detail"
+                                                    className="flex items-center rounded-full border-2 border-gray-900 px-6 py-2 font-bold hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 transition-colors"
+                                                >
+                                                    閉じる
+                                                    <ChevronUpIcon className="w-5 h-5 ml-1" aria-hidden="true" />
+                                                </button>
+                                            </div>
+                                        </div>
                                     )}
                                 </div>
                             )}
