@@ -31,6 +31,13 @@ export default defineConfig(({ mode }) => {
     // prerender: ビルドのときだけ、API の内容を index.html の #root に入れる
     plugins: [jsxInJs(), react(), prerender({ apiDomain: env.REACT_APP_API_DOMAIN })],
     define,
+    // 依存関係の事前スキャンは上のプラグインを通らないため、
+    // ここでも .js を JSX として読むよう指定する
+    optimizeDeps: {
+      rolldownOptions: {
+        moduleTypes: { '.js': 'jsx' },
+      },
+    },
     server: {
       port: 3000,
     },

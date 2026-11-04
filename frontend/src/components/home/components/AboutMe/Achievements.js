@@ -94,7 +94,7 @@ const Achievements = ({ isAuth }) => {
             )}
             <div className={`mt-6 grid ${columns} max-md:grid-cols-1 gap-4`}>
                 {visibleItems.map((item) => (
-                    <div key={item.key} className="rounded-2xl border border-gray-200 border-t-4 border-t-main bg-white p-6 max-md:p-5 shadow-sm text-center">
+                    <div key={item.key} className="rounded-b-2xl border border-gray-200 border-t-4 border-t-main bg-white p-6 max-md:p-5 shadow-sm text-center">
                         <div className="text-4xl max-lg:text-3xl font-bold">{item.value || <span className="text-gray-300">（数字が未入力）</span>}</div>
                         <div className="mt-2 text-sm text-gray-600">{item.label}</div>
                     </div>

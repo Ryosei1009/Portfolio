@@ -124,7 +124,7 @@ const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
                     {profile && (
                         <>
                             {/* 要約 */}
-                            <div className="mt-6 rounded-2xl border-l-8 border-main bg-gray-50 p-8 max-md:p-5 flex max-md:flex-col gap-8 max-md:gap-4">
+                            <div className="mt-6 rounded-t-2xl border-b-4 border-main bg-gray-50 p-8 max-md:p-5 flex max-md:flex-col gap-8 max-md:gap-4">
                                 <div className="shrink-0 w-48 max-md:w-full flex flex-col items-center text-center">
                                     <img loading="lazy" onClick={() => setIconOpen(true)} src={profile.image} alt={`${profile.name}のプロフィール写真`} className="w-32 h-32 max-md:w-24 max-md:h-24 object-cover border-white border-4 rounded-full shadow cursor-pointer hover:opacity-80" />
                                     <div className="mt-3 font-bold text-2xl max-md:text-xl">{profile.name}</div>
