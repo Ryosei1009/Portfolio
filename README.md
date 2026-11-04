@@ -45,24 +45,22 @@ Dependabot のアラートに対応するため、Create React App から Vite �
 | **Frontend** | React 18, React Router, Vite, Tailwind CSS, Headless UI |
 | **Backend**  | Node.js, Express, JWT, Multer                           |
 | **Database** | MySQL                                                   |
-| **Infra**    | HTTPS, 独自ドメイン (`shinoryo.com`)                    |
+| **Infra**    | Vercel, Cloudflare (DNS・プロキシ), HTTPS, 独自ドメイン (`shinoryo.com`) |
 
-```
-Browser ──▶ www.shinoryo.com     (React / Vite build)
-               │
-               ▼  REST API
-            api.shinoryo.com        (Express, HTTPS)
-               │
-               ▼
-             MySQL
-```
+### 構成図
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/tech-map-dark.png">
+  <img src="docs/tech-map.png" alt="shinoryo.com の構成図。利用者から Cloudflare を通り、フロントエンドは Vercel、API は自前サーバーの Express と MySQL で動いている">
+</picture>
 
 ## ディレクトリ構成
 
 ```
 .
 ├── frontend/   # React アプリ（表示・編集 UI）
-└── backend/    # Express API サーバー（データ取得・更新、認証、画像配信）
+├── backend/    # Express API サーバー（データ取得・更新、認証、画像配信）
+└── docs/       # README 用の画像（構成図）
 ```
 
 ## Contact
