@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET;
 
 const app = express();
+app.set('trust proxy', ['loopback', 'uniquelocal']);
 const PORT = process.env.PORT;
 
 app.use(cors());
