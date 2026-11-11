@@ -1,0 +1,25 @@
+# 本番（VPS）用。/srv/portfolio/compose.yaml に置き、backend/ の中身を /srv/portfolio/app に置く
+#   起動：cd /srv/portfolio && sudo docker compose up -d --build
+# MySQL と Caddy は /srv/infra のものを使う（同じ db ネットワークに参加する）
+# 工具管理（tool_management）は 2026/11 に別のコンテナ（/srv/tool、toolapi.shinoryo.com）に分けた
+name: portfolio
+
+services:
+  app:
+    build: ./app
+    container_name: portfolio
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      TZ: Asia/Tokyo
+    # サーバーの中（Caddy）からだけ届くようにする
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - ./app/images:/app/images
+      - ./app/logs:/app/logs
+    networks: [db]
+
+networks:
+  db:
+    external: true
