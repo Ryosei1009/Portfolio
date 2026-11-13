@@ -45,7 +45,7 @@ grep -n tool app/index.js app/Dockerfile compose.yaml   # 何も出なければ 
 # 2. 作り直して、動いているか確かめる
 sudo docker compose up -d --build
 sudo docker compose logs --tail 20
-curl -s -o /dev/null -w '%{http_code}\n' https://api.shinoryo.com/aboutme/   # 200 なら OK
+curl -s -o /dev/null -w '%{http_code}\n' https://api.shinoryo.com/aboutme/get   # 200 なら OK
 
 # 3. 工具管理の設定とコードを消す
 sed -i '/^TM_/d' .env
