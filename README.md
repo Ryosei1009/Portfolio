@@ -67,4 +67,5 @@ Dependabot のアラートに対応するため、Create React App から Vite �
 ## Contact
 
 - GitHub: [@Ryosei1009](https://github.com/Ryosei1009)
+- Portfolio: [www.shinoryo.com](https://www.shinoryo.com)
 - Mail: shinoryo1009@gmail.com
