@@ -22,6 +22,22 @@ https://api.shinoryo.com  → Cloudflare → VPS の Caddy → portfolio コン�
 cd /srv/portfolio && sudo docker compose up -d --build
 ```
 
+## DB のテーブルを足すとき
+
+`deploy/sql/` の SQL は、新しい `backend/` を動かす**前に**一度だけ流します（`CREATE TABLE IF NOT EXISTS` なので、2回流しても壊れません）。
+
+```bash
+cd /srv/infra
+DB=$(grep '^MYSQL_DATABASE=' /srv/portfolio/.env | cut -d= -f2)
+sudo docker compose exec -T mysql sh -c "exec mysql -uroot -p\"\$MYSQL_ROOT_PASSWORD\" $DB" < /path/to/2026-11-repositories.sql
+```
+
+| SQL | 追加したもの |
+|---|---|
+| `2026-11-repositories.sql` | Repositories セクションの表示の設定（`repositories` テーブル）。流す前に新しい `backend/` を動かすと、Repositories の読み込みと、カテゴリの保存が失敗します |
+
+Repositories は GitHub API から一覧を取ります（1時間取っておく）。回数制限が気になるときだけ、`.env` に `GITHUB_TOKEN` を入れます（`backend/.env.example` を参照）。
+
 ## 工具管理を外したときの手順（2026/11）
 
 それまでは、工具管理（tool_management）の API もこのコンテナの中で一緒に動かしていました

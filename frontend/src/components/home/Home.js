@@ -3,16 +3,17 @@ import { useLocation } from 'react-router-dom'
 import TopBanner from './components/TopBanner'
 import Works from './components/Works/Works'
 import AboutMe from './components/AboutMe/AboutMe'
+import Repositories from './components/Repositories/Repositories'
 
 // profile / onProfileChange: About Me の内容（App で持ち、フッターでも使う）
 const Home = ({ isAuth, profile, onProfileChange }) => {
   const { hash } = useLocation()
-  const [loaded, setLoaded] = useState({ aboutMe: false, works: false })
+  const [loaded, setLoaded] = useState({ aboutMe: false, repositories: false, works: false })
   const scrolled = useRef(false)
 
   // ログイン画面などから「/#works」で来たときは、内容が出そろってから該当の位置へ移動する
   useEffect(() => {
-    if (scrolled.current || !hash || !loaded.aboutMe || !loaded.works) return
+    if (scrolled.current || !hash || !loaded.aboutMe || !loaded.repositories || !loaded.works) return
     scrolled.current = true
     document.getElementById(hash.slice(1))?.scrollIntoView()
   }, [hash, loaded])
@@ -22,6 +23,7 @@ const Home = ({ isAuth, profile, onProfileChange }) => {
       {/* ヒーローの名前は About Me の名前を使う（編集するとヒーローにもすぐ反映される） */}
       <TopBanner isAuth={isAuth} profile={profile} />
       <AboutMe isAuth={isAuth} onLoaded={() => setLoaded((prev) => ({ ...prev, aboutMe: true }))} onProfileChange={onProfileChange} />
+      <Repositories isAuth={isAuth} onLoaded={() => setLoaded((prev) => ({ ...prev, repositories: true }))} />
       <Works isAuth={isAuth} onLoaded={() => setLoaded((prev) => ({ ...prev, works: true }))} />
     </>
   )

@@ -43,13 +43,14 @@ const getJson = async (apiDomain, path) => {
 
 // 取得できたものだけを使う（1つ失敗しても、ほかは使う）
 const fetchContent = async (apiDomain) => {
-  const [aboutMe, settings, works, categories] = await Promise.allSettled([
+  const [aboutMe, settings, works, categories, repositories] = await Promise.allSettled([
     getJson(apiDomain, '/aboutme/get'),
     getJson(apiDomain, '/settings/get'),
     getJson(apiDomain, '/works/get'),
     getJson(apiDomain, '/categories/get'),
+    getJson(apiDomain, '/repositories/get'),
   ])
-  for (const [label, result] of Object.entries({ aboutMe, settings, works, categories })) {
+  for (const [label, result] of Object.entries({ aboutMe, settings, works, categories, repositories })) {
     if (result.status === 'rejected') console.warn(`[prerender] ${label} を取得できませんでした（決まった文言で作ります）: ${result.reason?.message ?? result.reason}`)
   }
   const value = (result) => (result.status === 'fulfilled' ? result.value : null)
@@ -58,6 +59,7 @@ const fetchContent = async (apiDomain) => {
     settings: value(settings) ?? {},
     works: Array.isArray(value(works)) ? value(works) : [],
     categories: Array.isArray(value(categories)) && value(categories).length > 0 ? value(categories) : FALLBACK.categories,
+    repositories: Array.isArray(value(repositories)) ? value(repositories) : [],
   }
 }
 
@@ -78,7 +80,20 @@ const workItem = (item, withCategory) => {
   return `<li>${name}${category}${highlight}</li>`
 }
 
-const renderContent = ({ profile, settings, works, categories }, description) => {
+// Repositories.js と同じ並び（カテゴリの順 → sort_order、どのカテゴリにも当てはまらないものは「その他」）
+// API は公開中のものだけを sort_order の順で返す
+const arrangeRepositories = (repositories, categories) => {
+  const groups = categories.map((category) => ({ category, items: repositories.filter((repo) => repo.category === category) }))
+  const others = repositories.filter((repo) => !categories.includes(repo.category))
+  return [...groups, { category: 'その他', items: others }].filter((group) => group.items.length > 0)
+}
+
+const repositoryItem = (repo) => {
+  const description = repo.description ? ` … ${escapeHtml(repo.description)}` : ''
+  return `<li><a href="${escapeHtml(repo.html_url)}">${escapeHtml(repo.name)}</a>${description}</li>`
+}
+
+const renderContent = ({ profile, settings, works, categories, repositories = [] }, description) => {
   const name = escapeHtml(profile?.name || FALLBACK.name)
   const subName = escapeHtml(profile?.sub_name || FALLBACK.subName)
   const label = escapeHtml(settings.hero_label || FALLBACK.label)
@@ -88,6 +103,7 @@ const renderContent = ({ profile, settings, works, categories }, description) =>
   const summary = summaryText.trim() ? markdown(summaryText) : `<p>${escapeHtml(description)}</p>`
   const github = profile?.github_url || settings.hero_github_url
   const { featured, others } = arrangeWorks(works, categories)
+  const repositoryGroups = arrangeRepositories(repositories, categories)
 
   const workList = (title, items, withCategory) => items.length === 0 ? '' : `
       <h3 class="mt-6 text-xl font-bold">${title}</h3>
@@ -104,6 +120,12 @@ const renderContent = ({ profile, settings, works, categories }, description) =>
         <h2 class="text-5xl max-sm:text-4xl font-bold">About Me</h2>
         <div class="mt-6 leading-relaxed">${summary}</div>
       </section>
+      ${repositoryGroups.length === 0 ? '' : `
+      <section class="mt-16">
+        <h2 class="text-5xl max-sm:text-4xl font-bold">Repositories</h2>${repositoryGroups.map(({ category, items }) => `
+        <h3 class="mt-6 text-xl font-bold">${escapeHtml(category)}</h3>
+        <ul class="mt-2 ml-2 leading-relaxed">${items.map(repositoryItem).join('')}</ul>`).join('')}
+      </section>`}
       ${featured.length + others.length === 0 ? '' : `
       <section class="mt-16">
         <h2 class="text-5xl max-sm:text-4xl font-bold">Works</h2>${workList('代表作', featured, false)}${workList('その他の活動', others, true)}

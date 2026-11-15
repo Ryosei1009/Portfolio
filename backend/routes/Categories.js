@@ -53,23 +53,30 @@ router.post('/save', (req, res) => {
             if (!previousNames.every((name) => current.includes(name))) {
                 throw new SaveError(409, 'カテゴリが別の画面で変更されています。ページを読み込み直してください。');
             }
-            // 一覧から外したカテゴリに作品が残っていたら、消さずに止める
+            // 一覧から外したカテゴリに作品やリポジトリが残っていたら、消さずに止める
             const removed = current.filter((name) => !previousNames.includes(name));
             if (removed.length > 0) {
                 const [used] = await conn.query('SELECT category, COUNT(*) AS count FROM works WHERE category IN (?) GROUP BY category', [removed]);
                 if (used.length > 0) {
                     throw new SaveError(400, `作品が入っているカテゴリは削除できません（${used.map((row) => `${row.category}: ${row.count}件`).join('、')}）。`);
                 }
+                const [usedByRepos] = await conn.query('SELECT category, COUNT(*) AS count FROM repositories WHERE category IN (?) GROUP BY category', [removed]);
+                if (usedByRepos.length > 0) {
+                    throw new SaveError(400, `リポジトリが入っているカテゴリは削除できません（${usedByRepos.map((row) => `${row.category}: ${row.count}件`).join('、')}）。Repositories の編集でカテゴリを変えてから削除してください。`);
+                }
             }
 
             const renames = items
                 .map((item, index) => ({ from: item.previous_name, to: names[index], temp: `${TEMP_PREFIX}${index}` }))
                 .filter((rename) => rename.from !== null && rename.from !== rename.to);
-            for (const rename of renames) {
-                await conn.query('UPDATE works SET category = ? WHERE category = ?', [rename.temp, rename.from]);
-            }
-            for (const rename of renames) {
-                await conn.query('UPDATE works SET category = ? WHERE category = ?', [rename.to, rename.temp]);
+            // 作品とリポジトリは、カテゴリを名前で持っているので一緒に書き換える
+            for (const table of ['works', 'repositories']) {
+                for (const rename of renames) {
+                    await conn.query(`UPDATE ${table} SET category = ? WHERE category = ?`, [rename.temp, rename.from]);
+                }
+                for (const rename of renames) {
+                    await conn.query(`UPDATE ${table} SET category = ? WHERE category = ?`, [rename.to, rename.temp]);
+                }
             }
             await conn.query(
                 'INSERT INTO categories (position, name) VALUES ? ON DUPLICATE KEY UPDATE name = VALUES(name)',
