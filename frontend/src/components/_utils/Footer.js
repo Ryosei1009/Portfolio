@@ -1,6 +1,7 @@
 import React from 'react'
 import { useLocation } from 'react-router-dom'
-import { ArrowTopRightOnSquareIcon, EnvelopeIcon } from '@heroicons/react/24/solid'
+import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/solid'
+import EmailReveal from './EmailReveal'
 
 const linkClass = 'inline-flex min-h-11 items-center gap-1 px-2 hover:opacity-60'
 
@@ -34,10 +35,7 @@ const Footer = ({ profile }) => {
             )}
             {profile.mail && (
               <li>
-                <a className={linkClass} href={`mailto:${profile.mail}`}>
-                  <EnvelopeIcon className="h-4 w-4" aria-hidden="true" />
-                  {profile.mail}
-                </a>
+                <EmailReveal mail={profile.mail} className={linkClass} iconClassName="h-4 w-4" />
               </li>
             )}
           </ul>
