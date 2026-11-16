@@ -89,8 +89,10 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, 
                                 leaveTo="opacity-0 scale-95"
                             >
                                 {selectedWork && (
-                                    <div className="relative rounded-xl border-8 border-main">
-                                        <div className="absolute inset-0 bg-white rounded-md"></div>
+                                    <div className="relative rounded-2xl shadow-2xl">
+                                        <div className="absolute inset-0 overflow-hidden rounded-2xl bg-white">
+                                            <div className="h-1.5 bg-main" />
+                                        </div>
                                         <Dialog.Panel className="relative px-10 max-lg:px-4 pt-12 max-lg:pt-14 pb-12 max-lg:pb-5 flex flex-col items-center">
                                             {/* 閉じるボタン。高さ0の帯を上に固定して、その右上に重ねる（下の内容を押し下げない）
                                                 帯の top とボタンの -top は、パネルの上の余白（pt）に合わせて、ボタンが枠の 4px 内側に来るようにする */}

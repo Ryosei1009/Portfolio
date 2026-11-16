@@ -152,12 +152,13 @@ const WorkDetailEditor = ({ work, selectedImage, setSelectedImage, onZoom, setWo
                 <HtmlTextField label="成果と学び" value={form.outlook} onChange={update('outlook')} />
             </EditPanel>
         ),
-        device: (
-            <EditPanel title={`工夫 ${DEVICE_NUMBERS[image - 1]} を編集`} onClose={() => setEditing(null)} className="mt-2">
-                <p className="text-xs text-gray-500">下の小さい画像を選ぶと、その画像の工夫に切り替わります。工夫を空欄にすると、公開画面ではその画像と工夫を出しません（3〜4個に絞るとき）。</p>
-                <HtmlTextField key={image} label={`工夫 ${DEVICE_NUMBERS[image - 1]}（画像${image}の説明）`} value={form[`device_${image}`]} onChange={update(`device_${image}`)} />
+        // 工夫①〜⑤（画像1〜5の説明）
+        ...Object.fromEntries([1, 2, 3, 4, 5].map((slot) => [`device_${slot}`, (
+            <EditPanel title={`工夫 ${DEVICE_NUMBERS[slot - 1]} を編集`} onClose={() => setEditing(null)} className="mt-2">
+                <p className="text-xs text-gray-500">1行目を【見出し】にすると、太字の見出しになります。空欄にすると、公開画面ではこの工夫と画像{slot}を出しません（3〜4個に絞るとき）。</p>
+                <HtmlTextField label={`工夫 ${DEVICE_NUMBERS[slot - 1]}（画像${slot}の説明）`} value={form[`device_${slot}`]} onChange={update(`device_${slot}`)} />
             </EditPanel>
-        ),
+        )])),
     }
 
     return (

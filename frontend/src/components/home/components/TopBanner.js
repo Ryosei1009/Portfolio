@@ -67,7 +67,7 @@ const TopBanner = ({ isAuth, profile }) => {
             <div className="mt-1 text-2xl max-xl:text-xl max-sm:text-lg font-bold text-gray-600">
               {subName}
             </div>
-            <div className="mt-6 max-md:mt-4 text-xl max-xl:text-lg max-sm:text-base font-medium leading-relaxed">
+            <div className="phrase-wrap mt-6 max-md:mt-4 text-xl max-xl:text-lg max-sm:text-base font-medium leading-relaxed">
               {/* 「／」の位置でだけ折り返す */}
               {settings.hero_catchphrase.split('／').map((phrase, index) => <span key={index}>{phrase}</span>)}
             </div>

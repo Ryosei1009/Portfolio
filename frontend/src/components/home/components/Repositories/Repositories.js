@@ -256,8 +256,8 @@ const Repositories = ({ isAuth, onLoaded }) => {
             {/* min-w-0: 横スクロールの列の幅に引っぱられて、左右の余白が消えないようにする */}
             <div className="text-black w-full min-w-0 max-w-5xl mx-16 max-xl:mx-8 max-lg:mx-4">
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-4 max-md:mb-0">
-                    <h2 className="text-5xl max-sm:text-4xl font-bold">
-                        Repositories<span className="ml-4 text-xl">ソースコード</span>
+                    <h2 className="flex flex-wrap items-baseline gap-x-4 text-5xl max-sm:text-4xl font-bold">
+                        Repositories<span className="text-xl">ソースコード</span>
                     </h2>
                     {isAuth && (
                         <div className="flex flex-wrap items-center gap-2">

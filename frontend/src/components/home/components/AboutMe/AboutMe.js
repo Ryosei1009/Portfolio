@@ -117,19 +117,19 @@ const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
         <>
             <div id="about" className="flex justify-center my-24 scroll-mt-16">
                 <div className="text-black w-full max-w-5xl mx-16 max-xl:mx-8 max-lg:mx-4 flex flex-col justify-center">
-                    <h2 className="text-5xl max-sm:text-4xl font-bold mb-4 max-md:mb-0">
-                        About Me<span className="ml-4 text-xl">自己紹介</span>
+                    <h2 className="flex flex-wrap items-baseline gap-x-4 text-5xl max-sm:text-4xl font-bold mb-4 max-md:mb-0">
+                        About Me<span className="text-xl">自己紹介</span>
                     </h2>
                     <LoadStatus status={loadStatus} onRetry={fetchAboutMe} className="mt-6" />
                     {profile && (
                         <>
                             {/* 要約 */}
-                            <div className="mt-6 rounded-t-2xl border-b-4 border-main bg-gray-50 p-8 max-md:p-5 flex max-md:flex-col gap-8 max-md:gap-4">
+                            <div className="mt-6 rounded-2xl bg-gray-50 p-8 max-md:p-5 flex max-md:flex-col gap-8 max-md:gap-4">
                                 <div className="shrink-0 w-48 max-md:w-full flex flex-col items-center text-center">
-                                    <img loading="lazy" onClick={() => setIconOpen(true)} src={profile.image} alt={`${profile.name}のプロフィール写真`} className="w-32 h-32 max-md:w-24 max-md:h-24 object-cover border-white border-4 rounded-full shadow cursor-pointer hover:opacity-80" />
+                                    <img loading="lazy" onClick={() => setIconOpen(true)} src={profile.image} alt={`${profile.name}のプロフィール写真`} className="w-40 h-40 max-md:w-32 max-md:h-32 object-cover border-white border-4 rounded-full shadow cursor-pointer hover:opacity-80" />
                                     <div className="mt-3 font-bold text-2xl max-md:text-xl">{profile.name}</div>
                                     <div className="font-bold text-gray-600">{profile.sub_name}</div>
-                                    <div className="mt-3 flex flex-col max-md:flex-row max-md:flex-wrap max-md:justify-center gap-x-4 gap-y-1 text-sm">
+                                    <div className="mt-3 flex flex-col max-md:flex-row max-md:flex-wrap max-md:justify-center gap-x-4 gap-y-1.5 text-base max-md:text-sm">
                                         <a className="flex items-center hover:opacity-80 w-fit" href={`mailto:${profile.mail}`} target="_blank" rel="noopener noreferrer">
                                             <EnvelopeIcon className="w-5 h-5 mr-1 shrink-0"></EnvelopeIcon>{profile.mail}
                                         </a>

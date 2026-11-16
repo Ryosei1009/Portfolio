@@ -48,3 +48,8 @@ h5 {
 h6 {
   @apply text-base font-bold max-md:text-sm max-sm:text-xs;
 }
+
+/* 日本語を単語（文節）の途中で折り返さない。word-break: auto-phrase に対応していないブラウザでは、今まで通りの折り返しになる */
+.phrase-wrap {
+    word-break: auto-phrase;
+}

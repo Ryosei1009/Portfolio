@@ -219,7 +219,7 @@ const Works = ({ isAuth, onLoaded }) => {
                 <div className="flex justify-center">
                     <div className="max-w-5xl mx-16 max-xl:mx-8 max-lg:mx-4 w-full">
                         <div className="text-5xl max-sm:text-4xl font-bold mb-4 max-md:mb-0 flex flex-wrap justify-between items-end gap-3">
-                            <h2 className="text-5xl max-sm:text-4xl">Works<span className="ml-4 text-xl">これまでしてきたこと</span></h2>
+                            <h2 className="flex flex-wrap items-baseline gap-x-4 text-5xl max-sm:text-4xl">Works<span className="text-xl">これまでしてきたこと</span></h2>
                             {isAuth && (
                                 <div className="flex flex-wrap items-center gap-2">
                                     <SaveStatus status={categoryStatus} onRetry={flushCategories} />
@@ -358,7 +358,7 @@ const WorkCard = ({ item, imageVersion, size, isAuth, onOpen, onOpenSettings, on
                 {item.highlight && (
                     // カードの高さがそろうように下端に寄せる
                     <div className={`mt-auto pt-3 flex justify-center ${isLarge ? 'text-sm' : 'text-xs'}`}>
-                        <div className={`rounded-lg bg-emerald-50 py-1 text-center text-balance font-medium text-emerald-800 ${isLarge ? 'px-3' : 'px-2'}`}>
+                        <div className={`phrase-wrap rounded-lg bg-emerald-50 py-1 text-center text-balance font-medium text-emerald-800 ${isLarge ? 'px-3' : 'px-2'}`}>
                             {item.highlight}
                         </div>
                     </div>
