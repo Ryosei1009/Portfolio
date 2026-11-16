@@ -169,10 +169,15 @@ router.post('/update', (req, res) => {
     jwt.verify(token, JWT_SECRET, (err, decoded) => {
         if (err) return res.status(401).send('無許可');
         const { id, each_name, url, url_name, purpose, outlook, device_1, device_2, device_3, device_4, device_5 } = req.body;
-        
+        // 期間・人数・担当・技術のタグ。送られてこない（古い画面からの保存の）ときは今の値のままにする
+        const tag = (value, max) => (typeof value === 'string' ? value.trim().slice(0, max) : null);
+        const { period, team, role, tech } = req.body;
+
         db.query(
-            'UPDATE works SET each_name = ?, url = ?, url_name = ?, purpose = ?, outlook = ?, device_1 = ?, device_2 = ?, device_3 = ?, device_4 = ?, device_5 = ? where id = ?',
-            [each_name, url, url_name, purpose, outlook, device_1, device_2, device_3, device_4, device_5, id],
+            `UPDATE works SET each_name = ?, url = ?, url_name = ?, purpose = ?, outlook = ?, device_1 = ?, device_2 = ?, device_3 = ?, device_4 = ?, device_5 = ?,
+                period = COALESCE(?, period), team = COALESCE(?, team), role = COALESCE(?, role), tech = COALESCE(?, tech) where id = ?`,
+            [each_name, url, url_name, purpose, outlook, device_1, device_2, device_3, device_4, device_5,
+                tag(period, 50), tag(team, 50), tag(role, 100), tag(tech, 255), id],
             (err, results) => {
                 if (err) {
                     console.error(err);

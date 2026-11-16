@@ -25,10 +25,12 @@ router.post('/update', (req, res) => {
     jwt.verify(token, JWT_SECRET, (err, decoded) => {
         if (err) return res.status(401).send('無許可');
         const { name, sub_name, introduction, history, skill, mail, github_url, github_name, image } = req.body;
-        
+        // スキル（Markdown）。送られてこない（古い画面からの保存の）ときは今の値のままにする
+        const skills = typeof req.body.skills === 'string' ? req.body.skills : null;
+
         db.query(
-            'UPDATE about_me SET name = ?, sub_name = ?, introduction = ?, history = ?, skill = ?, mail = ?, github_url = ?, github_name = ?, image = ? where id = 1',
-            [name, sub_name, introduction, history, skill, mail, github_url, github_name, image],
+            'UPDATE about_me SET name = ?, sub_name = ?, introduction = ?, history = ?, skill = ?, skills = COALESCE(?, skills), mail = ?, github_url = ?, github_name = ?, image = ? where id = 1',
+            [name, sub_name, introduction, history, skill, skills, mail, github_url, github_name, image],
             (err, results) => {
                 if (err) {
                     console.error(err);

@@ -24,7 +24,7 @@ cd /srv/portfolio && sudo docker compose up -d --build
 
 ## DB のテーブルを足すとき
 
-`deploy/sql/` の SQL は、新しい `backend/` を動かす**前に**一度だけ流します（`CREATE TABLE IF NOT EXISTS` なので、2回流しても壊れません）。
+`deploy/sql/` の SQL は、新しい `backend/` を動かす**前に**、上から順に一度だけ流します。
 
 ```bash
 cd /srv/infra
@@ -35,6 +35,7 @@ sudo docker compose exec -T mysql sh -c "exec mysql -uroot -p\"\$MYSQL_ROOT_PASS
 | SQL | 追加したもの |
 |---|---|
 | `2026-11-repositories.sql` | Repositories セクションの表示の設定（`repositories` テーブル）。流す前に新しい `backend/` を動かすと、Repositories の読み込みと、カテゴリの保存が失敗します |
+| `2026-11-works-tags-and-skills.sql` | 作品の期間・人数・担当・技術（`works` の4列）と、About Me のスキル（`about_me.skills`）。流す前に新しい `backend/` を動かすと、作品と About Me の保存が失敗します。`ALTER TABLE` なので2回流すとエラーになります（データは壊れません） |
 
 Repositories は GitHub API から一覧を取ります（1時間取っておく）。回数制限が気になるときだけ、`.env` に `GITHUB_TOKEN` を入れます（`backend/.env.example` を参照）。
 
