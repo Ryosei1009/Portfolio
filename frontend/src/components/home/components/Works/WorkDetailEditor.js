@@ -4,7 +4,7 @@ import { useAutoSave } from '../../../../utils/useAutoSave'
 import SaveStatus from '../../../_utils/SaveStatus'
 import ImageUploadButton from '../../../_utils/ImageUploadButton'
 import { EditButton, EditPanel, TextArea, TextField } from '../../../_utils/EditControls'
-import WorkDetailBody from './WorkDetailBody'
+import WorkDetailBody, { splitTech } from './WorkDetailBody'
 import { buildCardTitle, parseCardTitle } from './WorkSettingsDialog'
 
 const DEVICE_NUMBERS = ['①', '②', '③', '④', '⑤']
@@ -21,6 +21,10 @@ const pickDetail = (work) => ({
     device_3: work.device_3 ?? '',
     device_4: work.device_4 ?? '',
     device_5: work.device_5 ?? '',
+    period: work.period ?? '',
+    team: work.team ?? '',
+    role: work.role ?? '',
+    tech: work.tech ?? '',
 })
 
 const saveDetail = (data) => (
@@ -31,7 +35,7 @@ const saveDetail = (data) => (
     })
 )
 
-// 目的・展望・工夫は「文章 + <br />」だけでできているので、改行で編集できるようにする
+// 目的・成果と学び・工夫は「文章 + <br />」だけでできているので、改行で編集できるようにする
 const BREAK = /<br\s*\/?>/gi
 const isTextWithBreaks = (html) => !html.includes('\n') && !/<(?!br\s*\/?>)[^>]*>/i.test(html)
 const toText = (html) => html.split(BREAK).join('\n')
@@ -127,19 +131,30 @@ const WorkDetailEditor = ({ work, selectedImage, setSelectedImage, onZoom, setWo
                 <LinkFields form={form} update={update} />
             </EditPanel>
         ),
+        tags: (
+            <EditPanel title="期間・人数・担当・技術を編集" onClose={() => setEditing(null)}>
+                <p className="text-xs text-gray-500">タイトルの下にタグで表示します。空の項目は出しません。</p>
+                <div className="grid grid-cols-3 max-md:grid-cols-1 gap-3">
+                    <TextField label="期間" value={form.period} onChange={update('period')} maxLength={50} hint="例: 2024年2月〜2026年7月" />
+                    <TextField label="人数" value={form.team} onChange={update('team')} maxLength={50} hint="例: 2〜3人" />
+                    <TextField label="担当" value={form.role} onChange={update('role')} maxLength={100} hint="例: オーナー" />
+                </div>
+                <TextField label="技術" value={form.tech} onChange={update('tech')} maxLength={255} hint={`「, 」か「、」で区切ります。${splitTech(form.tech).length > 0 ? `（${splitTech(form.tech).length}個）` : ''}`} />
+            </EditPanel>
+        ),
         purpose: (
             <EditPanel title="目的を編集" onClose={() => setEditing(null)} className="mt-2">
                 <HtmlTextField label="目的" value={form.purpose} onChange={update('purpose')} />
             </EditPanel>
         ),
         outlook: (
-            <EditPanel title="展望を編集" onClose={() => setEditing(null)} className="mt-2">
-                <HtmlTextField label="展望" value={form.outlook} onChange={update('outlook')} />
+            <EditPanel title="成果と学びを編集" onClose={() => setEditing(null)} className="mt-2">
+                <HtmlTextField label="成果と学び" value={form.outlook} onChange={update('outlook')} />
             </EditPanel>
         ),
         device: (
             <EditPanel title={`工夫 ${DEVICE_NUMBERS[image - 1]} を編集`} onClose={() => setEditing(null)} className="mt-2">
-                <p className="text-xs text-gray-500">下の小さい画像を選ぶと、その画像の工夫に切り替わります。</p>
+                <p className="text-xs text-gray-500">下の小さい画像を選ぶと、その画像の工夫に切り替わります。工夫を空欄にすると、公開画面ではその画像と工夫を出しません（3〜4個に絞るとき）。</p>
                 <HtmlTextField key={image} label={`工夫 ${DEVICE_NUMBERS[image - 1]}（画像${image}の説明）`} value={form[`device_${image}`]} onChange={update(`device_${image}`)} />
             </EditPanel>
         ),
@@ -154,6 +169,7 @@ const WorkDetailEditor = ({ work, selectedImage, setSelectedImage, onZoom, setWo
                 setSelectedImage={setSelectedImage}
                 onZoom={onZoom}
                 imageVersion={imageVersion}
+                showAllSlots
                 imageSlot={(
                     <ImageUploadButton
                         key={image}
@@ -166,9 +182,9 @@ const WorkDetailEditor = ({ work, selectedImage, setSelectedImage, onZoom, setWo
                     />
                 )}
                 editButton={(key) => (
-                    <EditButton isOpen={editing === key} onClick={() => setEditing((prev) => (prev === key ? null : key))} className={key === 'title' ? 'mb-2' : 'shrink-0'} />
+                    <EditButton label={key === 'tags' ? '期間・技術などを編集' : '編集'} isOpen={editing === key} onClick={() => setEditing((prev) => (prev === key ? null : key))} className={key === 'title' ? 'mb-2' : key === 'tags' ? 'mt-2' : 'shrink-0'} />
                 )}
-                editPanel={(key) => editing === key && <div className={`w-full ${key === 'title' || key === 'link' ? 'my-3' : ''}`}>{panels[key]}</div>}
+                editPanel={(key) => editing === key && <div className={`w-full ${key === 'title' || key === 'link' || key === 'tags' ? 'my-3' : ''}`}>{panels[key]}</div>}
             />
         </>
     )

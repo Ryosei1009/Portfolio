@@ -17,8 +17,8 @@ const Footer = ({ profile }) => {
           <ul className="flex flex-wrap justify-center gap-x-4 text-base">
             <li><a className={linkClass} href={`${base}#top`}>TOP</a></li>
             <li><a className={linkClass} href={`${base}#about`}>About Me</a></li>
-            <li><a className={linkClass} href={`${base}#repositories`}>Repositories</a></li>
             <li><a className={linkClass} href={`${base}#works`}>Works</a></li>
+            <li><a className={linkClass} href={`${base}#repositories`}>Repositories</a></li>
           </ul>
         </nav>
         {(profile?.github_url || profile?.mail) && (

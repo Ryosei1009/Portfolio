@@ -118,17 +118,19 @@ const renderContent = ({ profile, settings, works, categories, repositories = []
       ${github ? `<p class="mt-6"><a href="${escapeHtml(github)}">GitHub</a></p>` : ''}
       <section class="mt-16">
         <h2 class="text-5xl max-sm:text-4xl font-bold">About Me</h2>
-        <div class="mt-6 leading-relaxed">${summary}</div>
+        <div class="mt-6 leading-relaxed">${summary}</div>${profile?.skills?.trim() ? `
+        <h3 class="mt-6 text-xl font-bold">スキル</h3>
+        <div class="mt-2 leading-relaxed">${markdown(profile.skills)}</div>` : ''}
       </section>
+      ${featured.length + others.length === 0 ? '' : `
+      <section class="mt-16">
+        <h2 class="text-5xl max-sm:text-4xl font-bold">Works</h2>${workList('代表作', featured, false)}${workList('その他の活動', others, true)}
+      </section>`}
       ${repositoryGroups.length === 0 ? '' : `
       <section class="mt-16">
         <h2 class="text-5xl max-sm:text-4xl font-bold">Repositories</h2>${repositoryGroups.map(({ category, items }) => `
         <h3 class="mt-6 text-xl font-bold">${escapeHtml(category)}</h3>
         <ul class="mt-2 ml-2 leading-relaxed">${items.map(repositoryItem).join('')}</ul>`).join('')}
-      </section>`}
-      ${featured.length + others.length === 0 ? '' : `
-      <section class="mt-16">
-        <h2 class="text-5xl max-sm:text-4xl font-bold">Works</h2>${workList('代表作', featured, false)}${workList('その他の活動', others, true)}
       </section>`}
     </main>
   `

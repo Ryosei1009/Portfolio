@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import axios from 'axios'
-import { ArrowDownIcon, ArrowPathIcon, ArrowTopRightOnSquareIcon, ArrowUpIcon } from '@heroicons/react/24/solid'
+import { ArrowDownIcon, ArrowPathIcon, ArrowTopRightOnSquareIcon, ArrowUpIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid'
 import { useAutoSave } from '../../../../utils/useAutoSave'
 import SaveStatus from '../../../_utils/SaveStatus'
 import LoadStatus from '../../../_utils/LoadStatus'
@@ -79,6 +79,75 @@ const RepositoryCard = ({ repo }) => (
             <Language name={repo.language} />
         </div>
     </a>
+)
+
+// カテゴリごとの横スクロールの列
+// スマホでは次のカードが少し見えるようにして、横にスクロールできることを伝える。PC では左右のボタンでも動かせる
+const CategoryRow = ({ category, items }) => {
+    const scrollerRef = useRef(null)
+    const [edges, setEdges] = useState({ start: true, end: true })
+
+    const updateEdges = useCallback(() => {
+        const scroller = scrollerRef.current
+        if (!scroller) return
+        setEdges({
+            start: scroller.scrollLeft <= 4,
+            end: scroller.scrollLeft + scroller.clientWidth >= scroller.scrollWidth - 4,
+        })
+    }, [])
+
+    useEffect(() => {
+        const scroller = scrollerRef.current
+        updateEdges()
+        scroller?.addEventListener('scroll', updateEdges, { passive: true })
+        window.addEventListener('resize', updateEdges)
+        return () => {
+            scroller?.removeEventListener('scroll', updateEdges)
+            window.removeEventListener('resize', updateEdges)
+        }
+    }, [updateEdges, items.length])
+
+    const scrollByPage = (direction) => {
+        const scroller = scrollerRef.current
+        scroller?.scrollBy({ left: direction * scroller.clientWidth * 0.8, behavior: 'smooth' })
+    }
+    const canScroll = !(edges.start && edges.end)
+
+    return (
+        <section className="mt-10 first-of-type:mt-6">
+            <div className="flex items-center justify-between gap-3">
+                <h3 className="text-xl font-bold bg-blue-500 px-4 py-1 rounded-lg text-white">
+                    {category}<span className="ml-2 text-sm font-normal">{items.length}件</span>
+                </h3>
+                {canScroll && (
+                    <div className="flex items-center gap-2 max-md:hidden">
+                        <ScrollButton label={`${category}を左へスクロール`} disabled={edges.start} onClick={() => scrollByPage(-1)}><ChevronLeftIcon className="h-5 w-5" aria-hidden="true" /></ScrollButton>
+                        <ScrollButton label={`${category}を右へスクロール`} disabled={edges.end} onClick={() => scrollByPage(1)}><ChevronRightIcon className="h-5 w-5" aria-hidden="true" /></ScrollButton>
+                    </div>
+                )}
+            </div>
+            {/* relative: カードの中の読み上げ用の文字（sr-only は絶対配置）がこの枠の外に出て、ページ全体を横に広げないようにする */}
+            <ul ref={scrollerRef} className="relative mt-4 -mx-1 flex gap-4 overflow-x-auto overscroll-x-contain snap-x snap-mandatory px-1 pt-1 pb-4">
+                {items.map((repo) => (
+                    <li key={repo.name} className="w-72 max-sm:w-[80%] shrink-0 snap-start">
+                        <RepositoryCard repo={repo} />
+                    </li>
+                ))}
+            </ul>
+        </section>
+    )
+}
+
+const ScrollButton = ({ label, disabled, onClick, children }) => (
+    <button
+        type="button"
+        onClick={onClick}
+        disabled={disabled}
+        aria-label={label}
+        className="flex h-11 w-11 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-700 shadow-sm hover:bg-gray-100 disabled:opacity-30 disabled:hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
+    >
+        {children}
+    </button>
 )
 
 const IconButton = ({ label, onClick, disabled, children }) => (
@@ -184,7 +253,8 @@ const Repositories = ({ isAuth, onLoaded }) => {
 
     return (
         <div id="repositories" className="flex justify-center pb-24 scroll-mt-16">
-            <div className="text-black w-full max-w-5xl mx-16 max-xl:mx-8 max-lg:mx-4">
+            {/* min-w-0: 横スクロールの列の幅に引っぱられて、左右の余白が消えないようにする */}
+            <div className="text-black w-full min-w-0 max-w-5xl mx-16 max-xl:mx-8 max-lg:mx-4">
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-4 max-md:mb-0">
                     <h2 className="text-5xl max-sm:text-4xl font-bold">
                         Repositories<span className="ml-4 text-xl">ソースコード</span>
@@ -196,7 +266,7 @@ const Repositories = ({ isAuth, onLoaded }) => {
                         </div>
                     )}
                 </div>
-                <p className="mt-2 text-sm text-gray-600">GitHub で公開しているリポジトリです。カードを押すと GitHub が開きます。</p>
+                <p className="mt-2 text-sm text-gray-600">GitHub で公開しているリポジトリです。カテゴリごとに横へスクロールでき、カードを押すと GitHub が開きます。</p>
                 <LoadStatus status={loadStatus} onRetry={() => fetchRepos()} className="mt-6" />
 
                 {isAuth && isEditing && loadStatus === 'done' && (
@@ -283,16 +353,7 @@ const Repositories = ({ isAuth, onLoaded }) => {
                     </p>
                 )}
 
-                {groups.map(({ category, items }) => (
-                    <section key={category} className="mt-10 first-of-type:mt-6">
-                        <div className="flex">
-                            <h3 className="text-xl font-bold bg-blue-500 px-4 py-1 rounded-lg text-white">{category}</h3>
-                        </div>
-                        <div className="mt-4 grid grid-cols-3 max-lg:grid-cols-2 max-sm:grid-cols-1 gap-4">
-                            {items.map((repo) => <RepositoryCard key={repo.name} repo={repo} />)}
-                        </div>
-                    </section>
-                ))}
+                {groups.map(({ category, items }) => <CategoryRow key={category} category={category} items={items} />)}
             </div>
         </div>
     )

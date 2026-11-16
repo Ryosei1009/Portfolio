@@ -19,14 +19,14 @@ const Header = () => {
                         About Me
                     </div>
                 </a>
-                <a className="hover:opacity-60" href={`${base}#repositories`}>
-                    <div className="w-full px-4 max-sm:px-2.5 py-4">
-                        Repositories
-                    </div>
-                </a>
                 <a className="hover:opacity-60" href={`${base}#works`}>
                     <div className="w-full px-4 max-sm:px-2.5 py-4">
                         Works
+                    </div>
+                </a>
+                <a className="hover:opacity-60" href={`${base}#repositories`}>
+                    <div className="w-full px-4 max-sm:px-2.5 py-4">
+                        Repositories
                     </div>
                 </a>
             </div>

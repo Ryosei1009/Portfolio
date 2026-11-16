@@ -53,7 +53,7 @@ const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
     const [loadStatus, setLoadStatus] = useState('loading')
     const [detailOpen, setDetailOpen] = useState(false)
     const detailToggleRef = useRef(null)
-    // 開いている編集欄（'profile' | 'introduction-top' | 'introduction-detail' | 'history' | 'skill'）
+    // 開いている編集欄（'profile' | 'introduction-top' | 'introduction-detail' | 'history' | 'skill' | 'skills'）
     const [editing, setEditing] = useState(null)
 
     const { reset } = useAutoSave(profile, saveAboutMe)
@@ -199,6 +199,24 @@ const AboutMe = ({ isAuth, onLoaded, onProfileChange }) => {
                             {isEditing('skill') && (
                                 <EditPanel title="資格を編集" onClose={() => setEditing(null)} className="mt-4">
                                     <MarkdownField label="資格（Markdown）" value={profile.skill} onChange={update('skill')} hint="1行に1項目。行の終わりで改行されます。" />
+                                </EditPanel>
+                            )}
+
+                            {/* スキル（空なら公開画面には出さない） */}
+                            {(profile.skills?.trim() || isAuth) && (
+                                <div className="mt-4 rounded-2xl border border-gray-200 p-6 max-md:p-5 max-md:text-sm">
+                                    <div className="flex items-start justify-between gap-2">
+                                        <h3 className="text-xl max-md:text-lg max-sm:text-base">スキル</h3>
+                                        {isAuth && <EditButton isOpen={editing === 'skills'} onClick={() => toggle('skills')} />}
+                                    </div>
+                                    {profile.skills?.trim()
+                                        ? <div className="mt-2 ml-2 leading-relaxed" dangerouslySetInnerHTML={markedText(profile.skills)} />
+                                        : <p className="mt-2 ml-2 text-gray-400">（空欄。公開画面には出ません）</p>}
+                                </div>
+                            )}
+                            {isEditing('skills') && (
+                                <EditPanel title="スキルを編集" onClose={() => setEditing(null)} className="mt-4">
+                                    <MarkdownField label="スキル（Markdown）" value={profile.skills ?? ''} onChange={update('skills')} hint="例: **フロントエンド**：React、Tailwind CSS。行の終わりで改行されます。" />
                                 </EditPanel>
                             )}
 

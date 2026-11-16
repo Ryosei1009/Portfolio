@@ -57,7 +57,7 @@ const CreateWorkModal = ({ isOpen, onClose, categories, onCreated }) => {
                     <div className="flex items-start justify-between gap-4">
                         <div>
                             <Dialog.Title className="text-lg font-bold">作品を追加</Dialog.Title>
-                            <p className="text-sm text-gray-500">非公開で作成します。作成後に開く画面で、リンク・目的・展望・工夫を書いてください。</p>
+                            <p className="text-sm text-gray-500">非公開で作成します。作成後に開く画面で、リンク・目的・成果と学び・工夫を書いてください。</p>
                         </div>
                         <button type="button" onClick={close} className="rounded-full px-3 py-1 text-sm font-bold text-gray-600 hover:bg-gray-100">
                             閉じる

@@ -2,7 +2,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import React, { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import ImageModal from './ImageModal';
-import WorkDetailBody from './WorkDetailBody';
+import WorkDetailBody, { visibleSlots } from './WorkDetailBody';
 import WorkDetailEditor from './WorkDetailEditor';
 
 // onAfterClose: 閉じるアニメーションが終わった後に呼ぶ（開く前に押したカードにフォーカスを戻すため）
@@ -51,6 +51,8 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, 
     }, [selectedWork, setSelectedWork, orderedWorks, modalIsOpen, isAuth, isOpen]);
 
     // returnTo: 拡大を閉じた後にフォーカスを戻す要素
+    // 公開画面では、文章が空の工夫の画像は出していないので、拡大も出ている画像にそろえる
+    const zoomImage = !isAuth && selectedWork && !visibleSlots(selectedWork).includes(selectedImage) ? visibleSlots(selectedWork)[0] : selectedImage
     const zoom = (returnTo = null) => {
         zoomReturnRef.current = returnTo
         setIsOpen(true)
@@ -125,7 +127,7 @@ const EachWork = ({ modalIsOpen, setModalIsOpen, selectedWork, setSelectedWork, 
                         </div>
                     </div>
                 </div>
-                <ImageModal isOpen={isOpen} setIsOpen={setIsOpen} selectedImage={selectedImage} selectedWork={selectedWork} imageVersion={imageVersion} />
+                <ImageModal isOpen={isOpen} setIsOpen={setIsOpen} selectedImage={zoomImage} selectedWork={selectedWork} imageVersion={imageVersion} />
             </Dialog >
         </Transition >
     )

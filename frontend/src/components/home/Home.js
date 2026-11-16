@@ -23,8 +23,8 @@ const Home = ({ isAuth, profile, onProfileChange }) => {
       {/* ヒーローの名前は About Me の名前を使う（編集するとヒーローにもすぐ反映される） */}
       <TopBanner isAuth={isAuth} profile={profile} />
       <AboutMe isAuth={isAuth} onLoaded={() => setLoaded((prev) => ({ ...prev, aboutMe: true }))} onProfileChange={onProfileChange} />
-      <Repositories isAuth={isAuth} onLoaded={() => setLoaded((prev) => ({ ...prev, repositories: true }))} />
       <Works isAuth={isAuth} onLoaded={() => setLoaded((prev) => ({ ...prev, works: true }))} />
+      <Repositories isAuth={isAuth} onLoaded={() => setLoaded((prev) => ({ ...prev, repositories: true }))} />
     </>
   )
 }
