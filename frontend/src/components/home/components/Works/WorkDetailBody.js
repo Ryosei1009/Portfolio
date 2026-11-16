@@ -113,7 +113,7 @@ const WorkDetailBody = ({ work, selectedImage, setSelectedImage, onZoom, imageVe
                     </div>
                     {slots.length > 1 && (
                         <>
-                            <div className="mt-4 flex w-full justify-center gap-[3%]">
+                            <div className="mt-4 flex w-full flex-wrap justify-center gap-x-[2.5%] gap-y-3">
                                 {/* 押せる範囲は before で 44px 四方以上に広げる（画像の大きさと並びは変えない） */}
                                 {slots.map((item, index) => {
                                     const isEmpty = showAllSlots && !plainText(work[`device_${item}`])
@@ -125,7 +125,7 @@ const WorkDetailBody = ({ work, selectedImage, setSelectedImage, onZoom, imageVe
                                             aria-pressed={image === item}
                                             aria-label={`工夫${numberOf(item, index)}の画像を表示`}
                                             title={isEmpty ? '工夫が空欄のため、公開画面には出ません' : undefined}
-                                            className={`group relative w-1/6 rounded-md ring-offset-2 before:absolute before:left-1/2 before:top-1/2 before:h-full before:min-h-11 before:w-full before:min-w-11 before:-translate-x-1/2 before:-translate-y-1/2 before:content-[''] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 ${image === item ? 'ring-2 ring-gray-900' : ''} ${isEmpty ? 'opacity-30' : ''}`}
+                                            className={`group relative basis-[18%] lg:basis-[31%] rounded-md ring-offset-2 before:absolute before:left-1/2 before:top-1/2 before:h-full before:min-h-11 before:w-full before:min-w-11 before:-translate-x-1/2 before:-translate-y-1/2 before:content-[''] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 ${image === item ? 'ring-2 ring-gray-900' : ''} ${isEmpty ? 'opacity-30' : ''}`}
                                         >
                                             <WorkPicture className="w-full rounded-md group-hover:opacity-80" workId={work.id} file={`${item}_small.jpg`} version={imageVersion} alt="" loading="lazy" />
                                             <span className="absolute -top-2 -left-2 flex h-5 w-5 items-center justify-center rounded-full bg-gray-900 text-xs font-bold text-white" aria-hidden="true">{numberOf(item, index)}</span>

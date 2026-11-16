@@ -60,6 +60,11 @@ const Language = ({ name }) => name && (
     </span>
 )
 
+// リポジトリ名は「_」「-」「.」の後ろで折り返せるようにする（2026miraisai_geogod_app → 2026miraisai_ / geogod_ / app）
+const RepositoryName = ({ name }) => name.split(/(?<=[_.-])/).map((part, index) => (
+    <React.Fragment key={index}>{index > 0 && <wbr />}{part}</React.Fragment>
+))
+
 const RepositoryCard = ({ repo }) => (
     <a
         href={repo.html_url}
@@ -69,7 +74,7 @@ const RepositoryCard = ({ repo }) => (
     >
         <div className="flex items-start gap-2">
             <GitHubIcon className="mt-0.5 h-5 w-5 shrink-0 text-gray-700" />
-            <span className="font-bold break-all group-hover:underline">{repo.name}</span>
+            <span className="min-w-0 font-bold [overflow-wrap:anywhere] group-hover:underline"><RepositoryName name={repo.name} /></span>
             <ArrowTopRightOnSquareIcon className="mt-1 ml-auto h-4 w-4 shrink-0 text-gray-400" aria-hidden="true" />
             <span className="sr-only">（GitHub が新しいタブで開きます）</span>
         </div>
@@ -127,7 +132,7 @@ const CategoryRow = ({ category, items }) => {
                 )}
             </div>
             {/* relative: カードの中の読み上げ用の文字（sr-only は絶対配置）がこの枠の外に出て、ページ全体を横に広げないようにする */}
-            <ul ref={scrollerRef} className="relative mt-4 -mx-1 flex gap-4 overflow-x-auto overscroll-x-contain snap-x snap-mandatory px-1 pt-1 pb-4">
+            <ul ref={scrollerRef} className="thin-scrollbar relative mt-4 -mx-1 flex gap-4 overflow-x-auto overscroll-x-contain snap-x snap-mandatory px-1 pt-1 pb-4">
                 {items.map((repo) => (
                     <li key={repo.name} className="w-72 max-sm:w-[80%] shrink-0 snap-start">
                         <RepositoryCard repo={repo} />

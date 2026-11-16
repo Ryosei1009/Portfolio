@@ -53,3 +53,19 @@ h6 {
 .phrase-wrap {
     word-break: auto-phrase;
 }
+
+/* 横スクロールのバーを細く、薄い灰色にする（Repositories の列） */
+.thin-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db transparent;
+}
+.thin-scrollbar::-webkit-scrollbar {
+    height: 6px;
+}
+.thin-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
+    border-radius: 9999px;
+}
+.thin-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
