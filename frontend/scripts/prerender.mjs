@@ -20,7 +20,8 @@ const escapeHtml = (text) => String(text ?? '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
 // タグを取り除いた文字（エスケープ済みのまま返す）
-const plainHtml = (html) => sanitizeHtml(String(html ?? ''), { allowedTags: [], allowedAttributes: {} }).replace(/\s+/g, ' ').trim()
+// 行（タグ）の境目の両側が英数字のときは空白を入れる（GMC RP6,000人 → GMC RP 6,000人。TextUtil.plainText と同じ）
+const plainHtml = (html) => sanitizeHtml(String(html ?? '').replace(/([A-Za-z0-9])((?:<[^>]+>)+)(?=[A-Za-z0-9])/g, '$1 $2'), { allowedTags: [], allowedAttributes: {} }).replace(/\s+/g, ' ').trim()
 
 // TextUtil.markedText と同じ変換（sanitize → marked）
 const markdown = (text) => marked.parse(sanitizeHtml(text ?? '', {

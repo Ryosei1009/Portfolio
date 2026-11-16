@@ -6,6 +6,7 @@ import SaveStatus from '../../../_utils/SaveStatus'
 import LoadStatus from '../../../_utils/LoadStatus'
 import GitHubIcon from '../../../_utils/GitHubIcon'
 import { EditButton, EditPanel, TextField } from '../../../_utils/EditControls'
+import { fetchCategories } from '../../../../utils/fetchCategories'
 
 // カテゴリ一覧がまだ読み込めていないとき（または読み込めなかったとき）に使う（Works と同じ）
 const DEFAULT_CATEGORIES = ['学外活動', '大学', '高校']
@@ -214,17 +215,15 @@ const Repositories = ({ isAuth, onLoaded }) => {
 
     useEffect(() => {
         fetchRepos()
-        async function fetchCategories() {
+        async function loadCategories() {
             try {
-                const response = await fetch(`${process.env.REACT_APP_API_DOMAIN}/categories/get`)
-                if (!response.ok) return
-                const names = await response.json()
+                const names = await fetchCategories()
                 if (Array.isArray(names) && names.length > 0) setCategories(names)
             } catch (error) {
                 console.error('Error fetching categories:', error)
             }
         }
-        fetchCategories()
+        loadCategories()
     }, [])
 
     useEffect(() => {

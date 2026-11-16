@@ -12,6 +12,7 @@ import { useAutoSave } from '../../../../utils/useAutoSave';
 import SaveStatus from '../../../_utils/SaveStatus';
 import LoadStatus from '../../../_utils/LoadStatus';
 import CategoryEditor, { categoryProblem } from './CategoryEditor';
+import { fetchCategories } from '../../../../utils/fetchCategories';
 
 // 並び順として保存する値（id と sort_order だけ）
 const toOrder = (works) => works?.map((item) => ({ id: item.id, sort_order: item.sort_order ?? 0 }))
@@ -62,11 +63,9 @@ const Works = ({ isAuth, onLoaded }) => {
     const categories = categoryItems.map((item) => savedNames[item.key]).filter(Boolean)
 
     useEffect(() => {
-        async function fetchCategories() {
+        async function loadCategories() {
             try {
-                const response = await fetch(`${process.env.REACT_APP_API_DOMAIN}/categories/get`)
-                if (!response.ok) return
-                const names = await response.json()
+                const names = await fetchCategories()
                 if (!Array.isArray(names) || names.length === 0) return
                 const items = withCategoryKeys(names)
                 // 読み込んだ値は保存済みとして扱う
@@ -77,7 +76,7 @@ const Works = ({ isAuth, onLoaded }) => {
                 console.error('Error fetching categories:', error)
             }
         }
-        fetchCategories()
+        loadCategories()
     }, [])
 
     // 並び替え（管理者のみ）。読み込んだ並び順は保存済みとして扱う
